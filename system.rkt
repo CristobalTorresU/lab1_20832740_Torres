@@ -1,14 +1,16 @@
 #lang racket
+(require "drive.rkt" "user.rkt")
+
 ;Implementación del TDA system
 
 ;CONSTRUCTOR
-;descripción: Permite crear un sistema y registra la fecha de creación
+;descripción: Permite crear un sistema y registra la fecha de creación.
 ;dom: string
 ;rec: lista
-(define system (lambda (name) (list name (seconds->date (current-seconds)))))
+(define system (lambda (name) (list (list name (list "dd" "mm" "aa")) (list) (list) (list) (list))))
 
 ;MODIFICADOR
-;descripción: 
+;descripción: Función que permite ejecutar un comando sobre un sistema.
 ;dom: system x command (función)
 ;rec: system
 (define run (lambda (system command) (command system)))
