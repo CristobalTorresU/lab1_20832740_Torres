@@ -1,7 +1,8 @@
 #lang racket
 (require "funciones.rkt")
-(provide add-user)
+(provide register)
 (provide login)
+(provide logout)
 (provide buscar_usuario)
 
 ;Implementación del TDA user
@@ -10,11 +11,13 @@
 ;descripción: Función que permite registrar un usuario al sistema.
 ;dom: system x userName
 ;rec: system
-(define add-user (lambda (system)
+(define register (lambda (system)
                    (lambda (userName)
                      (insertar (list-ref system 0)
                                (list-ref system 1)
-                               (agregar-lista (list-ref system 2) (list userName))
+                               (if (equal? #t (buscar_usuario userName (cdr (list-ref system 2))))
+                                   (list-ref system 2)
+                                   (agregar-lista (list-ref system 2) (list userName)))
                                (list-ref system 3) (list-ref system 4)))))
 
 ;SELECTOR
@@ -30,6 +33,17 @@
                                 (list-ref system 2))
                             (list-ref system 3)
                             (list-ref system 4)))))
+
+;SELECTOR
+;descripión: Función que permite iniciar sesión.
+;dom: system x userName (String)
+;rec: system
+(define logout (lambda (system)
+                 (insertar (list-ref system 0)
+                           (list-ref system 1)
+                           (append (list "N/A") (cdr (list-ref system 2)))
+                           (list-ref system 3)
+                           (list-ref system 4))))
 
 ;OTRAS OPERACIONES
 ;descripción: Función que busca el nombre de un usuario
