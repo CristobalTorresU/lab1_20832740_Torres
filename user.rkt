@@ -4,6 +4,7 @@
 (provide login)
 (provide logout)
 (provide buscar_usuario)
+(provide modificar_user)
 
 ;Implementación del TDA user
 
@@ -15,10 +16,9 @@
                    (lambda (userName)
                      (insertar (list-ref system 0)
                                (list-ref system 1)
-                               (if (equal? #t (buscar_usuario userName (cdr (list-ref system 2))))
+                               (if (equal? #t (buscar_usuario userName (list-ref system 2)))
                                    (list-ref system 2)
-                                   (agregar-lista (list-ref system 2) (list userName)))
-                               (list-ref system 3) (list-ref system 4)))))
+                                   (agregar-lista (list-ref system 2) (list userName)))))))
 
 ;SELECTOR
 ;descripción: Función que permite iniciar sesión con un usuario del sistema.
@@ -26,26 +26,22 @@
 ;rec: system
 (define login (lambda (system)
                 (lambda (userName)
-                  (insertar (list-ref system 0)
-                            (list-ref system 1)
-                            (if (equal? #t (buscar_usuario userName (cdr (list-ref system 2))))
-                                (insertar-eleccion userName (cdr (list-ref system 2)))
-                                (list-ref system 2))
-                            (list-ref system 3)
-                            (list-ref system 4)))))
+                       (if (equal? #t (buscar_usuario userName (list-ref system 2)))
+                           (insertar (modificar_user (car system) userName)
+                                     (list-ref system 1)
+                                     (list-ref system 2))
+                           system))))
 
 ;SELECTOR
 ;descripión: Función que permite iniciar sesión.
 ;dom: system x userName (String)
 ;rec: system
 (define logout (lambda (system)
-                 (insertar (list-ref system 0)
+                 (insertar (modificar_user (car system) "N/A")
                            (list-ref system 1)
-                           (append (list "N/A") (cdr (list-ref system 2)))
-                           (list-ref system 3)
-                           (list-ref system 4))))
+                           (list-ref system 2))))
 
-;OTRAS OPERACIONES
+;PERTENENCIA
 ;descripción: Función que busca el nombre de un usuario
 ;dom: userName (String) x usuarios
 ;rec: boolean
@@ -54,3 +50,11 @@
                              (if (equal? userName (caar usuarios))
                                  #t
                                  (buscar_usuario userName (cdr usuarios))))))
+
+;funcion_modificar
+(define modificar_user (lambda (system userName)
+                         (list (list-ref system 0)
+                               (list-ref system 1)
+                               (list-ref system 2)
+                               userName
+                               (list-ref system 4))))

@@ -1,5 +1,5 @@
 #lang racket
-(require "drive.rkt" "user.rkt" "fecha.rkt")
+(require "drive.rkt" "user.rkt" "fecha.rkt" "folder.rkt")
 
 ;Implementación del TDA system
 
@@ -7,7 +7,7 @@
 ;descripción: Permite crear un sistema y registra la fecha de creación.
 ;dom: string
 ;rec: lista
-(define system (lambda (name) (list (list name (fecha (current-seconds))) (list "N/A") (list "N/A") (list) (list))))
+(define system (lambda (name) (list (list name (fecha (current-seconds)) "N/A" "N/A" "N/A") (list) (list))))
 
 ;MODIFICADOR
 ;descripción: Función que permite ejecutar un comando sobre un sistema.
