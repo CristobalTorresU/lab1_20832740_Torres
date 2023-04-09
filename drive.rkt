@@ -15,7 +15,8 @@
                       (if (equal? #f (buscar_drive letter (list-ref system 1)))
                       (insertar (list-ref system 0)
                                 (agregar-lista (list-ref system 1) (list letter name capacity (list (list (string letter #\:)))))
-                                (list-ref system 2))
+                                (list-ref system 2)
+                                (list-ref system 3))
                       system))))
 
 ;PERTENENCIA
@@ -38,7 +39,8 @@
                              (if (equal? #t (buscar_drive letter (list-ref system 1)))
                                  (insertar (modificar_path (modificar_drive (car system) letter) (list (string letter #\:)))
                                            (ordenar_drives (list-ref system 1) letter)
-                                           (list-ref system 2))
+                                           (list-ref system 2)
+                                           (list-ref system 3))
                                  system)
                              system))))
 

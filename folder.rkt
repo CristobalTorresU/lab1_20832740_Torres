@@ -16,7 +16,8 @@
                              (append (list (append (car (list-ref system 1))
                                              (list (list (append (list-ref (car system) 4) (list name))))))
                                      (cdr (list-ref system 1)))
-                             (list-ref system 2))
+                             (list-ref system 2)
+                             (list-ref system 3))
                        system))))
 
 ;SELECTOR
@@ -29,11 +30,16 @@
                    (volver_a_root system)
                    (if (equal? path "..")
                        (retroceder_carpeta system)
-                       (if (equal? #f (comparar_rutas (rutas (cdddar (list-ref system 1)) null) (formar_ruta (cdr (ruta_actual system)) path (car (ruta_actual system)))))
+                       (if (equal? #f (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) path (car (ruta_actual system)))))
                            (insertar (modificar_path (car system) (append (ruta_actual system) (list path)))
                                      (list-ref system 1)
-                                     (list-ref system 2))
+                                     (list-ref system 2)
+                                     (list-ref system 3))
                    system))))))
+
+;
+(define carpetas_unidad_actual (lambda (system)
+                                 (cdddar (list-ref system 1))))
 
 ;OTRAS OPERACIONES
 ;descripción: Función que forma la ruta que se ingresa.
@@ -89,7 +95,8 @@
 (define retroceder_carpeta (lambda (system)
                              (insertar (modificar_path (car system) (remover_carpeta_final (ruta_actual system)))
                                        (list-ref system 1)
-                                       (list-ref system 2))))
+                                       (list-ref system 2)
+                                       (list-ref system 3))))
 
 ;MODIFICADOR
 ;descripción: Función que quita la última carpeta del directorio actual.
@@ -107,7 +114,8 @@
 (define volver_a_root (lambda (system)
                         (insertar (modificar_path (car system) (root system))
                                   (list-ref system 1)
-                                  (list-ref system 2))))
+                                  (list-ref system 2)
+                                  (list-ref system 3))))
 
 ;SELECTOR
 ;descripción: Función que entrega la carpeta root de la unidad actual.

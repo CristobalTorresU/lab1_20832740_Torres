@@ -3,11 +3,11 @@
 (provide agregar-lista)
 
 ;
-;
-;
-;
-(define insertar (lambda (sys1 sys2 sys3)
-                   (list sys1 sys2 sys3)))
+;descripción: Función que inserta los elementos del sistema.
+;dom: sys1 x sys2 x sys3 x sys4
+;rec: system
+(define insertar (lambda (sys1 sys2 sys3 sys4)
+                   (list sys1 sys2 sys3 sys4)))
 
 ;
 ;

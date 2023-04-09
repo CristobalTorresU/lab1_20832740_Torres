@@ -3,8 +3,6 @@
 (provide register)
 (provide login)
 (provide logout)
-(provide buscar_usuario)
-(provide modificar_user)
 
 ;Implementación del TDA user
 
@@ -18,7 +16,8 @@
                                (list-ref system 1)
                                (if (equal? #t (buscar_usuario userName (list-ref system 2)))
                                    (list-ref system 2)
-                                   (agregar-lista (list-ref system 2) (list userName)))))))
+                                   (agregar-lista (list-ref system 2) (list userName)))
+                               (list-ref system 3)))))
 
 ;SELECTOR
 ;descripción: Función que permite iniciar sesión con un usuario del sistema.
@@ -29,7 +28,8 @@
                        (if (equal? #t (buscar_usuario userName (list-ref system 2)))
                            (insertar (modificar_user (car system) userName)
                                      (list-ref system 1)
-                                     (list-ref system 2))
+                                     (list-ref system 2)
+                                     (list-ref system 3))
                            system))))
 
 ;SELECTOR
@@ -39,7 +39,8 @@
 (define logout (lambda (system)
                  (insertar (modificar_user (car system) "N/A")
                            (list-ref system 1)
-                           (list-ref system 2))))
+                           (list-ref system 2)
+                           (list-ref system 3))))
 
 ;PERTENENCIA
 ;descripción: Función que busca el nombre de un usuario
