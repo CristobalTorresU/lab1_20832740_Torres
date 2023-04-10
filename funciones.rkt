@@ -1,6 +1,12 @@
 #lang racket
 (provide insertar)
 (provide agregar-lista)
+(provide unidad_actual)
+(provide resto_unidades)
+(provide letra_unidad)
+(provide nombre_unidad)
+(provide size_unidad)
+(provide carpetas)
 
 ;
 ;descripción: Función que inserta los elementos del sistema.
@@ -15,3 +21,21 @@
 ;
 (define agregar-lista (lambda (objeto_1 objeto_2)
                             (append objeto_1 (list objeto_2))))
+
+;
+(define unidad_actual caadr)
+
+;
+(define resto_unidades cdadr)
+
+;
+(define letra_unidad car)
+
+;
+(define nombre_unidad cadr)
+
+;
+(define size_unidad caddr)
+
+;
+(define carpetas cdddr)

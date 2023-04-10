@@ -2,6 +2,7 @@
 (require "funciones.rkt")
 (provide md)
 (provide cd)
+(provide rd)
 
 ;Implementación del TDA folder
 
@@ -36,6 +37,53 @@
                                      (list-ref system 2)
                                      (list-ref system 3))
                    system))))))
+
+;MODIFICADOR
+;descripción: Función que elimina una carpeta que este vacía.
+;dom: system x folderName o folderPath (String)
+;rec: system
+(define rd (lambda (system)
+             (lambda (name)
+               (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system)))))
+                   system
+                   (if (and (equal? #f (tiene_archivos (car (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system))))))) (equal? #f (tiene_carpetas (carpetas_unidad_actual system) (append (ruta_actual system) (list name)) null)))
+                       (insertar (list-ref system 0)
+                                 (append (list (append (list (letra_unidad (unidad_actual system))
+                                                     (nombre_unidad (unidad_actual system))
+                                                     (size_unidad (unidad_actual system)))
+                                                       (cdr (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system)))))))
+                                       (resto_unidades system))
+                                 (list-ref system 2)
+                                 (list-ref system 3))
+                       system)))))
+
+;
+(define tiene_carpetas (lambda (carpetas path lista)
+                         (if (null? (filter (lambda (x) (igual_fuente x path)) (comparar carpetas path null)))
+                             #f
+                             #t)))
+
+;
+(define igual_fuente (lambda (path_carpeta path)
+                       (if (null? path)
+                           #t
+                           (if (equal? (car path_carpeta) (car path))
+                               (igual_fuente (cdr path_carpeta) (cdr path))
+                               #f))))
+
+;
+(define comparar (lambda (carpetas path lista)
+                   (if (null? carpetas)
+                       lista
+                       (if (> (length (caar carpetas)) (length path))
+                           (comparar (cdr carpetas) path (append lista (car carpetas)))
+                           (comparar (cdr carpetas) path lista)))))
+
+;
+(define tiene_archivos (lambda (carpeta)
+                         (if (null? (cdr carpeta))
+                             #f
+                             #t)))
 
 ;
 (define carpetas_unidad_actual (lambda (system)
@@ -123,3 +171,12 @@
 ;rec: root (list)
 (define root (lambda (system)
                (list (car (list-ref (car system) 4)))))
+
+;OTRAS OPERACIONES
+;descripción:
+;dom:
+;rec:
+(define primero_carpeta_actual (lambda (carpetas nombre)
+                         (if (equal? nombre (formar_ruta (cdaar carpetas) "" (caaar carpetas)))
+                             carpetas
+                             (primero_carpeta_actual (append (cdr carpetas) (list (car carpetas))) nombre))))
