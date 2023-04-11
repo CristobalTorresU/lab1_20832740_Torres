@@ -1,5 +1,5 @@
 #lang racket
-(require "drive.rkt" "user.rkt" "fecha.rkt" "folder.rkt" "file.rkt")
+(require "drive.rkt" "user.rkt" "fecha.rkt" "folder.rkt" "file.rkt" "funciones.rkt")
 
 ;Implementación del TDA system
 

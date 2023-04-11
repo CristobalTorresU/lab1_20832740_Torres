@@ -7,6 +7,14 @@
 (provide nombre_unidad)
 (provide size_unidad)
 (provide carpetas)
+(provide buscar_archivos)
+(provide nombres_archivos_unidad)
+(provide nombre_archivo)
+(provide archivos)
+(provide resto_carpetas)
+(provide carpeta_actual)
+(provide agregar_archivo_a_carpeta)
+(provide seleccionar_archivo)
 
 ;
 ;descripción: Función que inserta los elementos del sistema.
@@ -39,3 +47,40 @@
 
 ;
 (define carpetas cdddr)
+
+;
+(define buscar_archivos (lambda (archivos file_name)
+                         (if (null? (filter (lambda (archivos) (equal? archivos file_name)) archivos))
+                             #t
+                             #f)))
+
+;
+(define nombres_archivos_unidad (lambda (archivos lista)
+                                  (if (null? archivos)
+                                      lista
+                                      (nombres_archivos_unidad (cdr archivos)
+                                                               (append lista (list (nombre_archivo (car archivos))))))))
+
+;
+(define nombre_archivo car)
+
+;
+(define archivos cdr)
+
+;
+(define resto_carpetas cdr)
+
+;
+(define carpeta_actual car)
+
+;
+(define agregar_archivo_a_carpeta (lambda (carpeta file)
+                                    (if (or (null? (archivos carpeta)) (equal? #t (buscar_archivos (nombres_archivos_unidad (archivos carpeta) null) (nombre_archivo file))))
+                                        (append carpeta (list file))
+                                        carpeta)))
+
+;
+(define seleccionar_archivo (lambda (archivos name)
+                                  (if (equal? name (caar archivos))
+                                      (car archivos)
+                                      (seleccionar_archivo (cdr archivos) name))))
