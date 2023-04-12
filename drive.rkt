@@ -1,5 +1,5 @@
 #lang racket
-(require "funciones.rkt")
+(require "funciones.rkt" "fecha.rkt")
 (provide add-drive)
 (provide buscar_drive)
 (provide switch-drive)
@@ -14,7 +14,7 @@
                     (lambda (letter name capacity)
                       (if (equal? #f (buscar_drive (char-downcase letter) (list-ref system 1)))
                       (insertar (list-ref system 0)
-                                (agregar-lista (list-ref system 1) (list (char-downcase letter) name capacity (list (list (string (char-downcase letter) #\:)))))
+                                (agregar-lista (list-ref system 1) (list (char-downcase letter) name capacity (carpeta (list (string (char-downcase letter) #\:)) (list-ref (car system) 3))))
                                 (list-ref system 2)
                                 (list-ref system 3))
                       system))))
@@ -75,3 +75,7 @@
                                letter
                                (list-ref system 3)
                                (list-ref system 4))))
+
+;
+(define carpeta (lambda (direccion creador)
+                  (list (list direccion creador (fecha) (fecha)))))

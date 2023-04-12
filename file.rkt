@@ -109,7 +109,7 @@
 
 ;
 (define primero_carpeta_actual (lambda (carpetas nombre)
-                         (if (equal? nombre (formar_ruta (cdaar carpetas) "" (caaar carpetas)))
+                         (if (equal? nombre (formar_ruta (cdr (direccion_carpeta (car carpetas))) "" (car (direccion_carpeta (car carpetas)))))
                              carpetas
                              (primero_carpeta_actual (append (cdr carpetas) (list (car carpetas))) nombre))))
 
@@ -129,3 +129,6 @@
 
 ;
 (define resto_unidades cdadr)
+
+(define direccion_carpeta (lambda (carpeta)
+                            (caar carpeta)))

@@ -15,6 +15,7 @@
 (provide carpeta_actual)
 (provide agregar_archivo_a_carpeta)
 (provide seleccionar_archivo)
+(provide run)
 
 ;
 ;descripción: Función que inserta los elementos del sistema.
@@ -84,3 +85,6 @@
                                   (if (equal? name (caar archivos))
                                       (car archivos)
                                       (seleccionar_archivo (cdr archivos) name))))
+
+;
+(define run (lambda (system command) (command system)))

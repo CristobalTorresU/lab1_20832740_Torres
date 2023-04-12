@@ -1,11 +1,19 @@
 #lang racket
-(require "funciones.rkt")
+(require "funciones.rkt" "fecha.rkt" "drive.rkt")
 (provide md)
 (provide cd)
 (provide rd)
 (provide copy)
+(provide carpeta)
 
 ;Implementación del TDA folder
+
+;CONSTRUCTOR
+;descripción: Función que crea una carpeta.
+;dom: dirección (nombre) x fecha_creación (fecha) x fecha_modificación (fecha)
+;rec: carpeta
+(define carpeta (lambda (direccion creador)
+                  (list (list direccion creador (fecha) (fecha)))))
 
 ;CONSTRUCTOR
 ;descripión: Función que crea un directorio dentro de la unidad con un nombre especificado.
@@ -13,10 +21,10 @@
 ;rec: system
 (define md (lambda (system)
              (lambda (name)
-                   (if (equal? #t (comparar_rutas (rutas (cdddar (list-ref system 1)) null) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system)))))
+                   (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system)))))
                        (insertar (list-ref system 0)
                                  (append (list (append (car (list-ref system 1))
-                                             (list (list (append (list-ref (car system) 4) (list name))))))
+                                             (list (carpeta (append (list-ref (car system) 4) (list name)) (list-ref (car system) 3)))))
                                      (cdr (list-ref system 1)))
                              (list-ref system 2)
                              (list-ref system 3))
@@ -32,12 +40,17 @@
                    (volver_a_root system)
                    (if (equal? path "..")
                        (retroceder_carpeta system)
-                       (if (equal? #f (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) path (car (ruta_actual system)))))
-                           (insertar (modificar_path (car system) (append (ruta_actual system) (list path)))
-                                     (list-ref system 1)
+                       (if (equal? #f (comparar_rutas (rutas (carpetas_sistema (list-ref system 1) null) null) (string-downcase path)))
+                           (insertar (modificar_path (car system) (separar_string_ruta (string-downcase path)))
+                                     (list-ref ((run system switch-drive) (string-ref (string-downcase path) 0)) 1)
                                      (list-ref system 2)
                                      (list-ref system 3))
-                   system))))))
+                           (if (equal? #f (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) path (car (ruta_actual system)))))
+                               (insertar (modificar_path (car system) (append (ruta_actual system) (separar_string_ruta path)))
+                                         (list-ref system 1)
+                                         (list-ref system 2)
+                                         (list-ref system 3))
+                   system)))))))
 
 ;SELECTOR
 ;descripción: Función que copia un archivo o carpeta desde una ruta origen a una ruta destino.
@@ -171,7 +184,7 @@
 (define rutas (lambda (carpetas lista)
                 (if (null? carpetas)
                     lista
-                    (rutas (cdr carpetas) (append lista (list (formar_ruta (cdaar carpetas) "" (caaar carpetas))))))))
+                    (rutas (cdr carpetas) (append lista (list (formar_ruta (cdr (direccion_carpeta (car carpetas))) "" (car (direccion_carpeta (car carpetas))))))))))
 
 ;
 ;descripción: Función que define si una carpeta (ruta) ya existe.
@@ -226,3 +239,13 @@
                          (if (equal? nombre (formar_ruta (cdaar carpetas) "" (caaar carpetas)))
                              carpetas
                              (primero_carpeta_actual (append (cdr carpetas) (list (car carpetas))) nombre))))
+
+;
+(define direccion_carpeta (lambda (carpeta)
+                            (caar carpeta)))
+
+;
+(define carpetas_sistema (lambda (unidades lista)
+                           (if (null? unidades)
+                               lista
+                               (carpetas_sistema (cdr unidades) (append lista (cdddar unidades))))))
