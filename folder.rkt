@@ -1,5 +1,5 @@
 #lang racket
-(require "funciones.rkt" "fecha.rkt" "drive.rkt")
+(require "funciones.rkt" "fecha.rkt" "drive.rkt" "file.rkt")
 (provide md)
 (provide cd)
 (provide rd)
@@ -12,8 +12,8 @@
 ;descripción: Función que crea una carpeta.
 ;dom: dirección (nombre) x fecha_creación (fecha) x fecha_modificación (fecha)
 ;rec: carpeta
-(define carpeta (lambda (direccion creador)
-                  (list (list direccion creador (fecha) (fecha)))))
+(define carpeta (lambda (direccion creador . seguridad)
+                  (list (list direccion creador (fecha) (fecha) seguridad))))
 
 ;CONSTRUCTOR
 ;descripión: Función que crea un directorio dentro de la unidad con un nombre especificado.
@@ -41,7 +41,7 @@
                    (if (equal? path "..")
                        (retroceder_carpeta system)
                        (if (equal? #f (comparar_rutas (rutas (carpetas_sistema (list-ref system 1) null) null) (string-downcase path)))
-                           (insertar (modificar_path (car system) (separar_string_ruta (string-downcase path)))
+                           (insertar (modificar_path (car ((run system switch-drive) (string-ref (string-downcase path) 0))) (separar_string_ruta (string-downcase path)))
                                      (list-ref ((run system switch-drive) (string-ref (string-downcase path) 0)) 1)
                                      (list-ref system 2)
                                      (list-ref system 3))
@@ -86,6 +86,16 @@
                                      (cdr (list-ref system 1)))
                              (list-ref system 2)
                              (list-ref system 3)))))))))
+
+;SELECTOR
+;descripción: Función que mueve un archivo o carpeta desde una ruta origen a una ruta destino.
+;dom: system x source (file or folder) (String) x target path (String)
+;rec: system
+(define move (lambda (system)
+               (lambda (source target)
+                 (if (not (= 1 (length (separar_string source))))
+                     ((run ((run system copy) source target) del) source)
+                     0))))
 
 ;descripción: Función que separa los strings en los ".".
 ;dom: name (String)
@@ -236,7 +246,7 @@
 ;dom:
 ;rec:
 (define primero_carpeta_actual (lambda (carpetas nombre)
-                         (if (equal? nombre (formar_ruta (cdaar carpetas) "" (caaar carpetas)))
+                         (if (equal? nombre (formar_ruta (cdr (direccion_carpeta (car carpetas))) "" (car (direccion_carpeta (car carpetas)))))
                              carpetas
                              (primero_carpeta_actual (append (cdr carpetas) (list (car carpetas))) nombre))))
 

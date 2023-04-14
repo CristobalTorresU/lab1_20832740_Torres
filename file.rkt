@@ -1,5 +1,5 @@
 #lang racket
-(require "funciones.rkt")
+(require "funciones.rkt" "fecha.rkt")
 (provide file)
 (provide add-file)
 (provide del)
@@ -10,8 +10,8 @@
 ;descripción: Función que crea un archivo.
 ;dom: nombre (String) x tipo_archivo (String) x contenido (String)
 ;rec: file
-(define file (lambda (nombre tipo_archivo contenido)
-               (list nombre tipo_archivo contenido)))
+(define file (lambda (nombre tipo_archivo contenido . seguridad)
+               (list nombre tipo_archivo contenido seguridad)))
 
 ;MODIFICADOR
 ;descripción: Función que añade un archivo a la ruta actual.
@@ -67,7 +67,7 @@
 ;
 (define agregar_archivo_a_carpeta (lambda (carpeta file)
                                     (if (or (null? (archivos carpeta)) (equal? #t (buscar_archivos (nombres_archivos_unidad (archivos carpeta) null) (nombre_archivo file))))
-                                        (append carpeta (list file))
+                                        (append (actualizar_fecha_modificacion carpeta) (cdr carpeta) (list file))
                                         carpeta)))
 
 ;
@@ -130,5 +130,15 @@
 ;
 (define resto_unidades cdadr)
 
+;
 (define direccion_carpeta (lambda (carpeta)
                             (caar carpeta)))
+
+;
+;
+(define actualizar_fecha_modificacion (lambda (carpeta)
+                                        (list (list (list-ref (car carpeta) 0)
+                                                    (list-ref (car carpeta) 1)
+                                                    (list-ref (car carpeta) 2)
+                                                    (fecha)
+                                                    (list-ref (car carpeta) 4)))))
