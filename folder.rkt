@@ -61,7 +61,7 @@
                  (if (not (= 1 (length (separar_string source))))
                      (if (equal? #t (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null) source))
                      system
-                     (if (equal? #t (comparar_rutas (rutas (cdddar (list-ref system 1)) null) target))
+                     (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) target))
                          system
                         (if (equal? #f (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) target))) null) source))
                              system
@@ -74,18 +74,63 @@
                                                (resto_unidades system))
                                        (list-ref system 2)
                                        (list-ref system 3)))))
-                     (if (equal? #t (comparar_rutas (rutas (cdddar (list-ref system 1)) null) (formar_ruta (cdr (ruta_actual system)) source (car (ruta_actual system)))))
+                     (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) source (car (ruta_actual system)))))
                          system
-                         (if (equal? #t (comparar_rutas (rutas (cdddar (list-ref system 1)) null) target))
+                         (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) target))
                              system
-                             (if (equal? #f (comparar_rutas (rutas (cdddar (list-ref system 1)) null) (formar_ruta (cdr (separar_string_ruta target)) source (car (separar_string_ruta target)))))
+                             (if (equal? #f (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (separar_string_ruta target)) source (car (separar_string_ruta target)))))
                                  system
                                  (insertar (list-ref system 0)
                                  (append (list (append (car (list-ref system 1))
-                                             (list (list (append (separar_string_ruta target) (list source))))))
-                                     (cdr (list-ref system 1)))
-                             (list-ref system 2)
-                             (list-ref system 3)))))))))
+                                                       (list (append (carpeta (append (separar_string_ruta target) (list source)) (usuario_actual system)) (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) source (car (ruta_actual system))))))))))
+                                         (nuevas_carpetas (carpetas_unidad_actual system) (append (ruta_actual system) (list source)) target)
+                                         (cdr (list-ref system 1)))
+                                 (list-ref system 2)
+                                 (list-ref system 3)))))))))
+
+;
+(define nuevas_carpetas (lambda (carpetas path path_objetivo)
+                          (map (lambda (x) (nueva_fuente x path_objetivo)) (subcarpetas carpetas path))))
+
+;
+(define nueva_fuente (lambda (carpeta path_objetivo)
+          (if (null? (cdr carpeta))
+              (list (append (list (append (separar_string_ruta path_objetivo) (caar carpeta))) (cdar carpeta)))
+              (list (append (list (append (separar_string_ruta path_objetivo) (caar carpeta))) (cdar carpeta)) (cdr carpeta)))))
+
+;
+(define tiene_carpetas2 (lambda (carpetas path)
+                         (filter (lambda (x) (igual_fuente2 x path)) (comparar2 carpetas path null))))
+
+;
+(define subcarpetas (lambda (carpetas path)
+                      (map (lambda (x) (igual_fuente3 x path)) (tiene_carpetas2 carpetas path))))
+
+;
+(define igual_fuente2 (lambda (path_carpeta path)
+                       (if (null? path)
+                           #t
+                           (if (equal? (caaar path_carpeta) (car path))
+                               (igual_fuente2 (avanzar_directorio_carpeta path_carpeta) (cdr path))
+                               #f))))
+
+;
+(define igual_fuente3 (lambda (path_carpeta path)
+                       (if (= 1 (length path))
+                           path_carpeta
+                           (igual_fuente3 (avanzar_directorio_carpeta path_carpeta) (cdr path)))))
+
+;
+(define avanzar_directorio_carpeta (lambda (carpeta)
+                                     (append (list (append (list (cdaar carpeta)) (cdar carpeta))) (cdr carpeta))))
+
+;
+(define comparar2 (lambda (carpetas path lista)
+                   (if (null? carpetas)
+                       lista
+                       (if (> (length (caaar carpetas)) (length path))
+                           (comparar2 (cdr carpetas) path (append lista (list (car carpetas))))
+                           (comparar2 (cdr carpetas) path lista)))))
 
 ;SELECTOR
 ;descripción: Función que mueve un archivo o carpeta desde una ruta origen a una ruta destino.
@@ -115,7 +160,7 @@
              (lambda (name)
                (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system)))))
                    system
-                   (if (and (equal? #f (tiene_archivos (car (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system))))))) (equal? #f (tiene_carpetas (carpetas_unidad_actual system) (append (ruta_actual system) (list name)) null)))
+                   (if (and (equal? #f (tiene_archivos (car (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system))))))) (equal? #f (tiene_carpetas (carpetas_unidad_actual system) (append (ruta_actual system) (list name)))))
                        (insertar (list-ref system 0)
                                  (append (list (append (list (letra_unidad (unidad_actual system))
                                                      (nombre_unidad (unidad_actual system))
@@ -127,7 +172,7 @@
                        system)))))
 
 ;
-(define tiene_carpetas (lambda (carpetas path lista)
+(define tiene_carpetas (lambda (carpetas path)
                          (if (null? (filter (lambda (x) (igual_fuente x path)) (comparar carpetas path null)))
                              #f
                              #t)))
@@ -144,8 +189,8 @@
 (define comparar (lambda (carpetas path lista)
                    (if (null? carpetas)
                        lista
-                       (if (> (length (caar carpetas)) (length path))
-                           (comparar (cdr carpetas) path (append lista (car carpetas)))
+                       (if (> (length (caaar carpetas)) (length path))
+                           (comparar (cdr carpetas) path (append lista (list (caaar carpetas))))
                            (comparar (cdr carpetas) path lista)))))
 
 ;

@@ -16,6 +16,7 @@
 (provide agregar_archivo_a_carpeta)
 (provide seleccionar_archivo)
 (provide run)
+(provide usuario_actual)
 
 ;
 ;descripción: Función que inserta los elementos del sistema.
@@ -88,3 +89,7 @@
 
 ;
 (define run (lambda (system command) (command system)))
+
+;
+(define usuario_actual (lambda (system)
+                         (list-ref (car system) 3)))
