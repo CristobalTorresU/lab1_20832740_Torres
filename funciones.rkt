@@ -17,6 +17,7 @@
 (provide seleccionar_archivo)
 (provide run)
 (provide usuario_actual)
+(provide comparar_rutas)
 
 ;
 ;descripción: Función que inserta los elementos del sistema.
@@ -93,3 +94,25 @@
 ;
 (define usuario_actual (lambda (system)
                          (list-ref (car system) 3)))
+
+;
+(define comparar_rutas (lambda (rutas path)
+                         (if (null? (filter (lambda (rutas) (equal? rutas path)) rutas))
+                             #t
+                             #f)))
+;
+(define rutas (lambda (carpetas lista)
+                (if (null? carpetas)
+                    lista
+                    (rutas (cdr carpetas) (append lista (list (formar_ruta (cdr (direccion_carpeta (car carpetas))) "" (car (direccion_carpeta (car carpetas))))))))))
+
+;
+(define formar_ruta (lambda (path folder_name name)
+                      (if (null? path)
+                          (if (equal? "" folder_name)
+                              (string-append name "/")
+                              (string-append name "/" folder_name "/"))
+                          (formar_ruta (cdr path) folder_name (string-append name "/" (car path))))))
+;
+(define direccion_carpeta (lambda (carpeta)
+                            (caar carpeta)))

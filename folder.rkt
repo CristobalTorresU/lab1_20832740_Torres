@@ -5,6 +5,7 @@
 (provide rd)
 (provide copy)
 (provide carpeta)
+(provide move)
 
 ;Implementación del TDA folder
 
@@ -61,30 +62,30 @@
                  (if (not (= 1 (length (separar_string source))))
                      (if (equal? #t (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null) source))
                      system
-                     (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) target))
+                     (if (equal? #t (comparar_rutas (rutas (carpetas_sistema (list-ref system 1) null) null) target))
                          system
-                        (if (equal? #f (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) target))) null) source))
+                        (if (equal? #f (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (car (ordenar_drives (list-ref system 1) (string-ref target 0)))) target))) null) source))
                              system
                              (insertar (list-ref system 0)
-                                       (append (list (append (list (letra_unidad (unidad_actual system))
-                                                     (nombre_unidad (unidad_actual system))
-                                                     (size_unidad (unidad_actual system)))
-                                               (list (agregar_archivo_a_carpeta (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) target)) (seleccionar_archivo (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))) source)))
-                                               (resto_carpetas (primero_carpeta_actual (carpetas (unidad_actual system)) target))))
-                                               (resto_unidades system))
+                                       (ordenar_drives (append (list (append (list (letra_unidad (car (ordenar_drives (list-ref system 1) (string-ref target 0))))
+                                                     (nombre_unidad (car (ordenar_drives (list-ref system 1) (string-ref target 0))))
+                                                     (size_unidad (car (ordenar_drives (list-ref system 1) (string-ref target 0)))))
+                                               (list (agregar_archivo_a_carpeta (carpeta_actual (primero_carpeta_actual (carpetas (car (ordenar_drives (list-ref system 1) (string-ref target 0)))) target)) (seleccionar_archivo (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))) source)))
+                                               (resto_carpetas (primero_carpeta_actual (carpetas (car (ordenar_drives (list-ref system 1) (string-ref target 0)))) target))))
+                                               (cdr (ordenar_drives (list-ref system 1) (string-ref target 0)))) (string-ref (car (ruta_actual system)) 0))
                                        (list-ref system 2)
                                        (list-ref system 3)))))
                      (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) source (car (ruta_actual system)))))
                          system
-                         (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) target))
+                         (if (equal? #t (comparar_rutas (rutas (carpetas_sistema (list-ref system 1) null) null) target))
                              system
-                             (if (equal? #f (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (separar_string_ruta target)) source (car (separar_string_ruta target)))))
+                             (if (equal? #f (comparar_rutas (rutas (carpetas_sistema (list-ref system 1) null) null) (formar_ruta (cdr (separar_string_ruta target)) source (car (separar_string_ruta target)))))
                                  system
                                  (insertar (list-ref system 0)
-                                 (append (list (append (car (list-ref system 1))
+                                 (ordenar_drives (append (list (append (car (ordenar_drives (list-ref system 1) (string-ref target 0)))
                                                        (list (append (carpeta (append (separar_string_ruta target) (list source)) (usuario_actual system)) (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) source (car (ruta_actual system))))))))))
                                          (nuevas_carpetas (carpetas_unidad_actual system) (append (ruta_actual system) (list source)) target)
-                                         (cdr (list-ref system 1)))
+                                         (cdr (ordenar_drives (list-ref system 1) (string-ref target 0)))) (string-ref (car (ruta_actual system)) 0))
                                  (list-ref system 2)
                                  (list-ref system 3)))))))))
 
@@ -138,9 +139,12 @@
 ;rec: system
 (define move (lambda (system)
                (lambda (source target)
-                 (if (not (= 1 (length (separar_string source))))
-                     ((run ((run system copy) source target) del) source)
-                     0))))
+                 (if (equal? ((run system copy) source target) system)
+                     system
+                     (insertar (list-ref ((run ((run system copy) source target) del) source) 0)
+                               (list-ref ((run ((run system copy) source target) del) source) 1)
+                               (list-ref ((run ((run system copy) source target) del) source) 2)
+                               (list-ref ((run system copy) source target) 3))))))
 
 ;descripción: Función que separa los strings en los ".".
 ;dom: name (String)
@@ -304,3 +308,9 @@
                            (if (null? unidades)
                                lista
                                (carpetas_sistema (cdr unidades) (append lista (cdddar unidades))))))
+
+;
+(define ordenar_drives (lambda (drives letter)
+                         (if (equal? letter (caar drives))
+                             drives
+                             (ordenar_drives (append (cdr drives) (list (car drives))) letter))))

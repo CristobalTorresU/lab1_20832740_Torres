@@ -35,12 +35,29 @@
 ;rec: system
 (define del (lambda (system)
               (lambda (name)
-                (if (equal? #f (buscar_archivos (nombres_archivos_unidad (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))) null) name))
+                (if (not (= 1 (length (separar_string name))))
+                  (if (equal? #f (buscar_archivos (nombres_archivos_unidad (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))) null) name))
                               (insertar (list-ref system 0)
                                         (eliminar_archivo system name)
                                         (list-ref system 2)
                                         (append (list-ref system 3) (list (seleccionar_archivo (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))) name))))
-                              system))))
+                              system)
+                  (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system)))))
+                      system
+                      (insertar (list-ref system 0)
+                                (append (list (append (list (caar (list-ref system 1)))
+                                        (list (cadar (list-ref system 1)))
+                                        (list (caddar (list-ref system 1)))
+                                        (eliminar_carpetas (carpetas_unidad_actual system) (append (list (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system)))))) (tiene_carpetas2 (carpetas_unidad_actual system) (append (ruta_actual system) (list name)))))))
+                                        (cdr (list-ref system 1)))
+                                (list-ref system 2)
+                                (list-ref system 3)))))))
+
+;
+(define eliminar_carpetas (lambda (carpetas carpetas_a_eliminar)
+                            (if (null? carpetas_a_eliminar)
+                                carpetas
+                                (eliminar_carpetas (remove (car carpetas_a_eliminar) carpetas) (cdr carpetas_a_eliminar)))))
 
 ;MODIFICADOR
 ;descripción: Función que elimina un archivo en particular.
@@ -142,3 +159,42 @@
                                                     (list-ref (car carpeta) 2)
                                                     (fecha)
                                                     (list-ref (car carpeta) 4)))))
+
+;
+(define separar_string (lambda (name)
+                         (string-split name "." #:trim? #t)))
+
+;
+(define rutas (lambda (carpetas lista)
+                (if (null? carpetas)
+                    lista
+                    (rutas (cdr carpetas) (append lista (list (formar_ruta (cdr (direccion_carpeta (car carpetas))) "" (car (direccion_carpeta (car carpetas))))))))))
+
+;
+(define carpetas_unidad_actual (lambda (system)
+                                 (cdddar (list-ref system 1))))
+
+;
+(define tiene_carpetas2 (lambda (carpetas path)
+                         (filter (lambda (x) (igual_fuente2 x path)) (comparar2 carpetas path null))))
+
+;
+;
+(define igual_fuente2 (lambda (path_carpeta path)
+                       (if (null? path)
+                           #t
+                           (if (equal? (caaar path_carpeta) (car path))
+                               (igual_fuente2 (avanzar_directorio_carpeta path_carpeta) (cdr path))
+                               #f))))
+
+;
+(define comparar2 (lambda (carpetas path lista)
+                   (if (null? carpetas)
+                       lista
+                       (if (> (length (caaar carpetas)) (length path))
+                           (comparar2 (cdr carpetas) path (append lista (list (car carpetas))))
+                           (comparar2 (cdr carpetas) path lista)))))
+
+;
+(define avanzar_directorio_carpeta (lambda (carpeta)
+                                     (append (list (append (list (cdaar carpeta)) (cdar carpeta))) (cdr carpeta))))
