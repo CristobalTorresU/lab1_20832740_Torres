@@ -3,6 +3,7 @@
 (provide file)
 (provide add-file)
 (provide del)
+(provide primero_archivo_actual)
 
 ;Implementación del TDA file
 
@@ -198,3 +199,9 @@
 ;
 (define avanzar_directorio_carpeta (lambda (carpeta)
                                      (append (list (append (list (cdaar carpeta)) (cdar carpeta))) (cdr carpeta))))
+
+;
+(define primero_archivo_actual (lambda (archivos name)
+                                 (if (equal? name (nombre_archivo (car archivos)))
+                                     archivos
+                                     (primero_archivo_actual (append (cdr archivos) (list (car archivos))) name))))

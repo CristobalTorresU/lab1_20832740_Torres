@@ -6,6 +6,7 @@
 (provide copy)
 (provide carpeta)
 (provide move)
+(provide ren)
 
 ;Implementación del TDA folder
 
@@ -88,6 +89,57 @@
                                          (cdr (ordenar_drives (list-ref system 1) (string-ref target 0)))) (string-ref (car (ruta_actual system)) 0))
                                  (list-ref system 2)
                                  (list-ref system 3)))))))))
+
+;MODIFICADOR
+;descripción: Función que permite renombrar una carpeta o archivo en el mismo nivel.
+;dom: system x currentName (String) x newName (String)
+;rec: system
+(define ren (lambda (system)
+              (lambda (currentName newName)
+                (if (= 1 (length (separar_string currentName)))
+                    (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) currentName (car (ruta_actual system)))))
+                        system
+                        (if (equal? #f (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) newName (car (ruta_actual system)))))
+                            system
+                            (insertar (list-ref system 0)
+                                      (append (list (append (list (letra_unidad (unidad_actual system))
+                                                     (nombre_unidad (unidad_actual system))
+                                                     (size_unidad (unidad_actual system)))
+                                              (quitar_carpetas_antiguas (carpetas_unidad_actual system) newName (length (append (ruta_actual system) (list currentName))) (append (list (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) currentName (car (ruta_actual system)))))) (tiene_carpetas2 (carpetas_unidad_actual system) (append (ruta_actual system) (list currentName)))))))
+                                       (resto_unidades system))
+                                      (list-ref system 2)
+                                      (list-ref system 3))))
+                    (if (equal? #t (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null) currentName))
+                        system
+                        (if (equal? #f (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null) newName))
+                            system
+                            (insertar (list-ref system 0)
+                                       (append (list (append (list (letra_unidad (unidad_actual system))
+                                                     (nombre_unidad (unidad_actual system))
+                                                     (size_unidad (unidad_actual system)))
+                                               (list (append (list (car (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))))
+                                                     (append (list (modificar_nombre_archivo (car (primero_archivo_actual (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) currentName)) newName))
+                                                     (cdr (primero_archivo_actual (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) currentName)))))
+                                               (resto_carpetas (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))))
+                                               (resto_unidades system))
+                                       (list-ref system 2)
+                                       (list-ref system 3))))))))
+
+;
+(define quitar_carpetas_antiguas (lambda (carpetas newName posicion carpetas_a_remover)
+                                   (if (null? carpetas_a_remover)
+                                       carpetas
+                                       (quitar_carpetas_antiguas (append (remove (car carpetas_a_remover) carpetas)
+                                                                         (list (append (list (list (modificar_posicion_carpeta (cdr (directorio_carpeta (car carpetas_a_remover))) (list (car (directorio_carpeta (car carpetas_a_remover)))) (- posicion 2) newName) (list-ref (caar carpetas_a_remover) 1) (list-ref (caar carpetas_a_remover) 2) (if (= posicion (length (directorio_carpeta (car carpetas_a_remover)))) (fecha) (list-ref (caar carpetas_a_remover) 3)) (list-ref (caar carpetas_a_remover) 4)))
+                                                                                       (cdr (car carpetas_a_remover)))))
+                                                                         newName posicion (cdr carpetas_a_remover)))))
+
+;
+(define modificar_nombre_archivo (lambda (archivo newName)
+                                   (list newName
+                                         (cadr (separar_string newName))
+                                         (list-ref archivo 2)
+                                         (list-ref archivo 3))))
 
 ;
 (define nuevas_carpetas (lambda (carpetas path path_objetivo)
@@ -314,3 +366,12 @@
                          (if (equal? letter (caar drives))
                              drives
                              (ordenar_drives (append (cdr drives) (list (car drives))) letter))))
+
+;
+(define modificar_posicion_carpeta (lambda (lista1 lista2 posicion reemplazo)
+                             (if (= 0 posicion)
+                                 (append lista2 (append (list reemplazo) (cdr lista1)))
+                                 (modificar_posicion_carpeta (cdr lista1) (append lista2 (list (car lista1))) (- posicion 1) reemplazo))))
+
+;
+(define directorio_carpeta caar)
