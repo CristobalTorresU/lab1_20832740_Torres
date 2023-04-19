@@ -1,26 +1,62 @@
 #lang racket
-(require "funciones.rkt" "fecha.rkt")
-(provide add-drive)
-(provide buscar_drive)
-(provide switch-drive)
+(require "system.rkt" "fecha.rkt" "user.rkt")
+(provide (all-defined-out))
 
 ;Implementación TDA drive
 
-;CONSTRUCTOR
-;descripción: Permite añadir una unidad de almacenamiento al sistema
-;dom: system x letter (char) x name (string) x capacity (int)
-;rec: system
-(define add-drive (lambda (system)
-                    (lambda (letter name capacity)
-                      (if (equal? #f (buscar_drive (char-downcase letter) (list-ref system 1)))
-                      (insertar (list-ref system 0)
-                                (agregar-lista (list-ref system 1) (list (char-downcase letter) name capacity (carpeta (list (string (char-downcase letter) #\:)) (list-ref (car system) 3))))
-                                (list-ref system 2)
-                                (list-ref system 3))
-                      system))))
+#|REPRESENTACIÓN: |#
+
+;CONSTRUCTORES
+(define drive (lambda (system letter name capacity)
+                (list (char-downcase letter) name capacity (list (list (list (string (char-downcase letter) #\:)) (usuario_actual system) (fecha) (fecha) null)))))
+
+;SELECTORES
+
+(define unidad_actual caadr) ;selecciona la unidad en la que se realizan las operaciones
+
+(define resto_unidades cdadr) ;selecciona el resto de unidades en el que no se realizan las operaciones
+
+(define letra_unidad car) ;selecciona la letra de la unidad en la que se realizan las operaciones
+
+(define nombre_unidad cadr) ;selecciona el nombre de la unidad en la que se realizan las operaciones
+
+(define size_unidad caddr) ;selecciona el tamaño de la unidad en la que se realizan las operaciones
+
+;MODIFICADORES
+
+;descripción: Función que permite modificar el path (ruta en la que se realizan las operaciones).
+;recursión: no
+;dom: system x path (list)
+;rec: 
+(define modificar_path (lambda (system path)
+                         (list (datos_sistema system)
+                               (unidades system)
+                               (usuarios system)
+                               (papelera system)
+                               path)))
+
+;descripción: Función que permite el drive actual (en el que se realizan las operaciones) del sistema.
+;recursión: no
+;dom: system x letter (char)
+;rec: 
+(define modificar_drive (lambda (datos_sistema letter)
+                         (list (list-ref datos_sistema 0)
+                               (list-ref datos_sistema 1)
+                               letter
+                               (list-ref datos_sistema 3)
+                               (list-ref datos_sistema 4))))
+
+;descripción: Función que agrega un drive al sistema.
+;recursión: no
+;dom: drives (lista de drives) x nuevo_drive (drive)
+;rec: drives
+(define agregar_drive (lambda (drives nuevo_drive)
+                            (append drives (list nuevo_drive))))
 
 ;PERTENENCIA
-;descripión: Función que busca si existe un drive
+
+;descripión: Función que busca si existe un drive en el sistema.
+;recursión: sí, recursión natural, porque recorre la lista de drives.
 ;dom: letter (char) x drives
 ;rec: boolean
 (define buscar_drive (lambda (letter drives)
@@ -29,53 +65,13 @@
                                  #t
                                  (buscar_drive letter (cdr drives))))))
 
-;SELECTOR
-;descripión: Función que fija una unidad de almacenamiento.
-;dom: system x letter (char)
-;rec: system
-(define switch-drive (lambda (system)
-                       (lambda (letter)
-                         (if (not (equal? "N/A" (list-ref (car system) 3)))
-                             (if (equal? #t (buscar_drive (char-downcase letter) (list-ref system 1)))
-                                 (insertar (modificar_path (modificar_drive (car system) (char-downcase letter)) (list (string (char-downcase letter) #\:)))
-                                           (ordenar_drives (list-ref system 1) (char-downcase letter))
-                                           (list-ref system 2)
-                                           (list-ref system 3))
-                                 system)
-                             system))))
+;OTRAS OPERACIONES
 
-;
-;
-;
-;
-(define modificar_path (lambda (system path)
-                         (list (list-ref system 0)
-                               (list-ref system 1)
-                               (list-ref system 2)
-                               (list-ref system 3)
-                               path)))
-
-;
-;descripción: 
-;recursión: 
-;dom: 
-;rec: 
+;descripción: Función que reordena los drives (unidades) del sistema.
+;recursión: sí, recursión natural, porque
+;dom: drives x letter (char)
+;rec: drives
 (define ordenar_drives (lambda (drives letter)
                          (if (equal? letter (caar drives))
                              drives
                              (ordenar_drives (append (cdr drives) (list (car drives))) letter))))
-
-;
-;
-;
-;
-(define modificar_drive (lambda (system letter)
-                         (list (list-ref system 0)
-                               (list-ref system 1)
-                               letter
-                               (list-ref system 3)
-                               (list-ref system 4))))
-
-;
-(define carpeta (lambda (direccion creador . seguridad)
-                  (list (list direccion creador (fecha) (fecha) seguridad))))

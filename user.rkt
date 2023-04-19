@@ -1,49 +1,46 @@
 #lang racket
-(require "funciones.rkt")
-(provide register)
-(provide login)
-(provide logout)
+(require "fecha.rkt")
+(provide (all-defined-out))
 
 ;Implementación del TDA user
 
+#|REPRESENTACIÓN: |#
 ;CONSTRUCTOR
-;descripción: Función que permite registrar un usuario al sistema.
-;dom: system x userName
-;rec: system
-(define register (lambda (system)
-                   (lambda (userName)
-                     (insertar (list-ref system 0)
-                               (list-ref system 1)
-                               (if (equal? #t (buscar_usuario userName (list-ref system 2)))
-                                   (list-ref system 2)
-                                   (agregar-lista (list-ref system 2) (list userName)))
-                               (list-ref system 3)))))
+;descripción: Función que permite crear un usuario (user).
+;recursión: no
+;dom: userName (String)
+;rec: user
+(define user (lambda (userName)
+               (list userName (fecha))))
 
-;SELECTOR
-;descripción: Función que permite iniciar sesión con un usuario del sistema.
-;dom: system x userName (String)
-;rec: system
-(define login (lambda (system)
-                (lambda (userName)
-                       (if (equal? #t (buscar_usuario userName (list-ref system 2)))
-                           (insertar (modificar_user (car system) userName)
-                                     (list-ref system 1)
-                                     (list-ref system 2)
-                                     (list-ref system 3))
-                           system))))
+;SELECTORES
 
-;SELECTOR
-;descripión: Función que permite iniciar sesión.
+(define usuario_actual (lambda (system) (list-ref (car system) 3))) ;selecciona el usuario que esta realizando las operaciones
+
+;MODIFICADORES
+
+;descripción: Función que permite cambiar al usuario realizando las operaciones en el sistema.
+;recursión: no
 ;dom: system x userName (String)
-;rec: system
-(define logout (lambda (system)
-                 (insertar (modificar_user (car system) "N/A")
-                           (list-ref system 1)
-                           (list-ref system 2)
-                           (list-ref system 3))))
+;rec: 
+(define modificar_user (lambda (datos_sistema userName)
+                         (list (list-ref datos_sistema 0)
+                               (list-ref datos_sistema 1)
+                               (list-ref datos_sistema 2)
+                               userName
+                               (list-ref datos_sistema 4))))
+
+;descripción: Función que agrega un usuario a la lista de usuarios.
+;recursión: no
+;dom: usuarios (lista de users) x nuevo_usuario (user)
+;rec: usuarios
+(define agregar_usuario (lambda (usuarios nuevo_usuario)
+                            (append usuarios (list nuevo_usuario))))
 
 ;PERTENENCIA
+
 ;descripción: Función que busca el nombre de un usuario
+;recursión: sí, recursión natural, porque
 ;dom: userName (String) x usuarios
 ;rec: boolean
 (define buscar_usuario (lambda (userName usuarios)
@@ -52,10 +49,4 @@
                                  #t
                                  (buscar_usuario userName (cdr usuarios))))))
 
-;funcion_modificar
-(define modificar_user (lambda (system userName)
-                         (list (list-ref system 0)
-                               (list-ref system 1)
-                               (list-ref system 2)
-                               userName
-                               (list-ref system 4))))
+;OTRAS OPERACIONES

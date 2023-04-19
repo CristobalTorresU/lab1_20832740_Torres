@@ -1,323 +1,84 @@
 #lang racket
-(require "funciones.rkt" "fecha.rkt" "drive.rkt" "file.rkt")
-(provide md)
-(provide cd)
-(provide rd)
-(provide copy)
-(provide carpeta)
-(provide move)
-(provide ren)
+(require "system.rkt" "fecha.rkt" "drive.rkt" "user.rkt")
+(provide (all-defined-out))
 
 ;Implementación del TDA folder
 
+#|REPRESENTACIÓN: Este TDA representa una carpeta (folder) y sus datos.
+   Una lista de listas con la dirección de la carpeta como una lista de strings,
+el nombre del usuario que la creo como un string, la fecha de creación como el
+TDA fecha, la fecha de modificación como del TDA fecha y los atributos de
+seguridad como una lista de char.|#
 ;CONSTRUCTOR
-;descripción: Función que crea una carpeta.
-;dom: dirección (nombre) x fecha_creación (fecha) x fecha_modificación (fecha)
+
+;descripción: Función que permite crear una carpeta.
+;recursión: no
+;dom: dirección (nombre) x creador (String) . seguridad (List)
 ;rec: carpeta
 (define carpeta (lambda (direccion creador . seguridad)
                   (list (list direccion creador (fecha) (fecha) seguridad))))
 
-;CONSTRUCTOR
-;descripión: Función que crea un directorio dentro de la unidad con un nombre especificado.
-;dom: system x name (String)
-;rec: system
-(define md (lambda (system)
-             (lambda (name)
-                   (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system)))))
-                       (insertar (list-ref system 0)
-                                 (append (list (append (car (list-ref system 1))
-                                             (list (carpeta (append (list-ref (car system) 4) (list name)) (list-ref (car system) 3)))))
-                                     (cdr (list-ref system 1)))
-                             (list-ref system 2)
-                             (list-ref system 3))
-                       system))))
+;SELECTORES
 
-;SELECTOR
-;descripción: Función que permite cambiar la ruta (path) en que se realizan las operaciones.
-;dom: system x path or folderName (String)
-;rec: system
-(define cd (lambda (system)
-             (lambda (path)
-               (if (equal? path "/")
-                   (volver_a_root system)
-                   (if (equal? path "..")
-                       (retroceder_carpeta system)
-                       (if (equal? #f (comparar_rutas (rutas (carpetas_sistema (list-ref system 1) null) null) (string-downcase path)))
-                           (insertar (modificar_path (car ((run system switch-drive) (string-ref (string-downcase path) 0))) (separar_string_ruta (string-downcase path)))
-                                     (list-ref ((run system switch-drive) (string-ref (string-downcase path) 0)) 1)
-                                     (list-ref system 2)
-                                     (list-ref system 3))
-                           (if (equal? #f (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) path (car (ruta_actual system)))))
-                               (insertar (modificar_path (car system) (append (ruta_actual system) (separar_string_ruta path)))
-                                         (list-ref system 1)
-                                         (list-ref system 2)
-                                         (list-ref system 3))
-                   system)))))))
+(define carpetas cdddr) ;selecciona las carpetas de una unidad
 
-;SELECTOR
-;descripción: Función que copia un archivo o carpeta desde una ruta origen a una ruta destino.
-;dom: system x source (file or folder) (String) x target path (String)
-;rec: system
-(define copy (lambda (system)
-               (lambda (source target)
-                 (if (not (= 1 (length (separar_string source))))
-                     (if (equal? #t (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null) source))
-                     system
-                     (if (equal? #t (comparar_rutas (rutas (carpetas_sistema (list-ref system 1) null) null) target))
-                         system
-                        (if (equal? #f (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (car (ordenar_drives (list-ref system 1) (string-ref target 0)))) target))) null) source))
-                             system
-                             (insertar (list-ref system 0)
-                                       (ordenar_drives (append (list (append (list (letra_unidad (car (ordenar_drives (list-ref system 1) (string-ref target 0))))
-                                                     (nombre_unidad (car (ordenar_drives (list-ref system 1) (string-ref target 0))))
-                                                     (size_unidad (car (ordenar_drives (list-ref system 1) (string-ref target 0)))))
-                                               (list (agregar_archivo_a_carpeta (carpeta_actual (primero_carpeta_actual (carpetas (car (ordenar_drives (list-ref system 1) (string-ref target 0)))) target)) (seleccionar_archivo (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))) source)))
-                                               (resto_carpetas (primero_carpeta_actual (carpetas (car (ordenar_drives (list-ref system 1) (string-ref target 0)))) target))))
-                                               (cdr (ordenar_drives (list-ref system 1) (string-ref target 0)))) (string-ref (car (ruta_actual system)) 0))
-                                       (list-ref system 2)
-                                       (list-ref system 3)))))
-                     (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) source (car (ruta_actual system)))))
-                         system
-                         (if (equal? #t (comparar_rutas (rutas (carpetas_sistema (list-ref system 1) null) null) target))
-                             system
-                             (if (equal? #f (comparar_rutas (rutas (carpetas_sistema (list-ref system 1) null) null) (formar_ruta (cdr (separar_string_ruta target)) source (car (separar_string_ruta target)))))
-                                 system
-                                 (insertar (list-ref system 0)
-                                 (ordenar_drives (append (list (append (car (ordenar_drives (list-ref system 1) (string-ref target 0)))
-                                                       (list (append (carpeta (append (separar_string_ruta target) (list source)) (usuario_actual system)) (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) source (car (ruta_actual system))))))))))
-                                         (nuevas_carpetas (carpetas_unidad_actual system) (append (ruta_actual system) (list source)) target)
-                                         (cdr (ordenar_drives (list-ref system 1) (string-ref target 0)))) (string-ref (car (ruta_actual system)) 0))
-                                 (list-ref system 2)
-                                 (list-ref system 3)))))))))
+(define carpeta_actual car) ;selecciona la carpeta en la que se realizan las operaciones
 
-;MODIFICADOR
-;descripción: Función que permite renombrar una carpeta o archivo en el mismo nivel.
-;dom: system x currentName (String) x newName (String)
-;rec: system
-(define ren (lambda (system)
-              (lambda (currentName newName)
-                (if (= 1 (length (separar_string currentName)))
-                    (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) currentName (car (ruta_actual system)))))
-                        system
-                        (if (equal? #f (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) newName (car (ruta_actual system)))))
-                            system
-                            (insertar (list-ref system 0)
-                                      (append (list (append (list (letra_unidad (unidad_actual system))
-                                                     (nombre_unidad (unidad_actual system))
-                                                     (size_unidad (unidad_actual system)))
-                                              (quitar_carpetas_antiguas (carpetas_unidad_actual system) newName (length (append (ruta_actual system) (list currentName))) (append (list (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) currentName (car (ruta_actual system)))))) (tiene_carpetas2 (carpetas_unidad_actual system) (append (ruta_actual system) (list currentName)))))))
-                                       (resto_unidades system))
-                                      (list-ref system 2)
-                                      (list-ref system 3))))
-                    (if (equal? #t (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null) currentName))
-                        system
-                        (if (equal? #f (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null) newName))
-                            system
-                            (insertar (list-ref system 0)
-                                       (append (list (append (list (letra_unidad (unidad_actual system))
-                                                     (nombre_unidad (unidad_actual system))
-                                                     (size_unidad (unidad_actual system)))
-                                               (list (append (list (car (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))))
-                                                     (append (list (modificar_nombre_archivo (car (primero_archivo_actual (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) currentName)) newName))
-                                                     (cdr (primero_archivo_actual (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) currentName)))))
-                                               (resto_carpetas (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))))
-                                               (resto_unidades system))
-                                       (list-ref system 2)
-                                       (list-ref system 3))))))))
+(define ruta_carpeta caar) ;selecciona la ruta de una carpeta
 
-;
+(define root (lambda (system)
+               (list (car (list-ref (car system) 4))))) ;selecciona la dirección del root de la unidad
+
+(define carpetas_unidad_actual (lambda (system)
+                                 (cdddar (unidades system)))) ;selecciona las carpetas de la unidad en la que se realizan las operaciones
+
+(define ruta_actual (lambda (system) (list-ref (car system) 4))) ;selecciona la ruta en la que se realizan las operaciones
+
+(define resto_carpetas cdr) ;selecciona las carpetas en las que no se realizan las operaciones
+
+;MODIFICADORES
+                                       
+;descripción: Función que 
+;recursión: sí, recursión natural, porque
+;dom: carpetas x newName x posicion x carpetas_a_remover
+;rec: 
 (define quitar_carpetas_antiguas (lambda (carpetas newName posicion carpetas_a_remover)
                                    (if (null? carpetas_a_remover)
                                        carpetas
                                        (quitar_carpetas_antiguas (append (remove (car carpetas_a_remover) carpetas)
-                                                                         (list (append (list (list (modificar_posicion_carpeta (cdr (directorio_carpeta (car carpetas_a_remover))) (list (car (directorio_carpeta (car carpetas_a_remover)))) (- posicion 2) newName) (list-ref (caar carpetas_a_remover) 1) (list-ref (caar carpetas_a_remover) 2) (if (= posicion (length (directorio_carpeta (car carpetas_a_remover)))) (fecha) (list-ref (caar carpetas_a_remover) 3)) (list-ref (caar carpetas_a_remover) 4)))
+                                                                         (list (append (list (list (modificar_posicion_carpeta (cdr (ruta_carpeta (car carpetas_a_remover)))
+                                                                                                                               (list (car (ruta_carpeta (car carpetas_a_remover))))
+                                                                                                                               (- posicion 2) newName)
+                                                                                                   (list-ref (caar carpetas_a_remover) 1)
+                                                                                                   (list-ref (caar carpetas_a_remover) 2)
+                                                                                                   (if (= posicion (length (ruta_carpeta (car carpetas_a_remover)))) (fecha)
+                                                                                                       (list-ref (caar carpetas_a_remover) 3))
+                                                                                                   (list-ref (caar carpetas_a_remover) 4)))
                                                                                        (cdr (car carpetas_a_remover)))))
                                                                          newName posicion (cdr carpetas_a_remover)))))
 
-;
+;descripción: Función que cambia el directorio actual a root.
+;recursión: no
+;dom: system
+;rec: system
+(define volver_a_root (lambda (system)
+                        (list (modificar_path (car system) (root system))
+                                  (unidades system)
+                                  (usuarios system)
+                                  (papelera system))))
+
+;descripción: Función que 
+;recursión: 
+;dom: archivo x newName
+;rec: 
 (define modificar_nombre_archivo (lambda (archivo newName)
                                    (list newName
                                          (cadr (separar_string newName))
                                          (list-ref archivo 2)
                                          (list-ref archivo 3))))
 
-;
-(define nuevas_carpetas (lambda (carpetas path path_objetivo)
-                          (map (lambda (x) (nueva_fuente x path_objetivo)) (subcarpetas carpetas path))))
-
-;
-(define nueva_fuente (lambda (carpeta path_objetivo)
-          (if (null? (cdr carpeta))
-              (list (append (list (append (separar_string_ruta path_objetivo) (caar carpeta))) (cdar carpeta)))
-              (list (append (list (append (separar_string_ruta path_objetivo) (caar carpeta))) (cdar carpeta)) (cdr carpeta)))))
-
-;
-(define tiene_carpetas2 (lambda (carpetas path)
-                         (filter (lambda (x) (igual_fuente2 x path)) (comparar2 carpetas path null))))
-
-;
-(define subcarpetas (lambda (carpetas path)
-                      (map (lambda (x) (igual_fuente3 x path)) (tiene_carpetas2 carpetas path))))
-
-;
-(define igual_fuente2 (lambda (path_carpeta path)
-                       (if (null? path)
-                           #t
-                           (if (equal? (caaar path_carpeta) (car path))
-                               (igual_fuente2 (avanzar_directorio_carpeta path_carpeta) (cdr path))
-                               #f))))
-
-;
-(define igual_fuente3 (lambda (path_carpeta path)
-                       (if (= 1 (length path))
-                           path_carpeta
-                           (igual_fuente3 (avanzar_directorio_carpeta path_carpeta) (cdr path)))))
-
-;
-(define avanzar_directorio_carpeta (lambda (carpeta)
-                                     (append (list (append (list (cdaar carpeta)) (cdar carpeta))) (cdr carpeta))))
-
-;
-(define comparar2 (lambda (carpetas path lista)
-                   (if (null? carpetas)
-                       lista
-                       (if (> (length (caaar carpetas)) (length path))
-                           (comparar2 (cdr carpetas) path (append lista (list (car carpetas))))
-                           (comparar2 (cdr carpetas) path lista)))))
-
-;SELECTOR
-;descripción: Función que mueve un archivo o carpeta desde una ruta origen a una ruta destino.
-;dom: system x source (file or folder) (String) x target path (String)
-;rec: system
-(define move (lambda (system)
-               (lambda (source target)
-                 (if (equal? ((run system copy) source target) system)
-                     system
-                     (insertar (list-ref ((run ((run system copy) source target) del) source) 0)
-                               (list-ref ((run ((run system copy) source target) del) source) 1)
-                               (list-ref ((run ((run system copy) source target) del) source) 2)
-                               (list-ref ((run system copy) source target) 3))))))
-
-;descripción: Función que separa los strings en los ".".
-;dom: name (String)
-;rec: list
-(define separar_string (lambda (name)
-                         (string-split name "." #:trim? #t)))
-
-;
-(define separar_string_ruta (lambda (name)
-                         (string-split name "/" #:trim? #t)))
-
-;MODIFICADOR
-;descripción: Función que elimina una carpeta que este vacía.
-;dom: system x folderName o folderPath (String)
-;rec: system
-(define rd (lambda (system)
-             (lambda (name)
-               (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system)))))
-                   system
-                   (if (and (equal? #f (tiene_archivos (car (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system))))))) (equal? #f (tiene_carpetas (carpetas_unidad_actual system) (append (ruta_actual system) (list name)))))
-                       (insertar (list-ref system 0)
-                                 (append (list (append (list (letra_unidad (unidad_actual system))
-                                                     (nombre_unidad (unidad_actual system))
-                                                     (size_unidad (unidad_actual system)))
-                                                     (cdr (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) name (car (ruta_actual system)))))))
-                                       (resto_unidades system))
-                                 (list-ref system 2)
-                                 (list-ref system 3))
-                       system)))))
-
-;
-(define tiene_carpetas (lambda (carpetas path)
-                         (if (null? (filter (lambda (x) (igual_fuente x path)) (comparar carpetas path null)))
-                             #f
-                             #t)))
-
-;
-(define igual_fuente (lambda (path_carpeta path)
-                       (if (null? path)
-                           #t
-                           (if (equal? (car path_carpeta) (car path))
-                               (igual_fuente (cdr path_carpeta) (cdr path))
-                               #f))))
-
-;
-(define comparar (lambda (carpetas path lista)
-                   (if (null? carpetas)
-                       lista
-                       (if (> (length (caaar carpetas)) (length path))
-                           (comparar (cdr carpetas) path (append lista (list (caaar carpetas))))
-                           (comparar (cdr carpetas) path lista)))))
-
-;
-(define tiene_archivos (lambda (carpeta)
-                         (if (null? (cdr carpeta))
-                             #f
-                             #t)))
-
-;
-(define carpetas_unidad_actual (lambda (system)
-                                 (cdddar (list-ref system 1))))
-
-;OTRAS OPERACIONES
-;descripción: Función que forma la ruta que se ingresa.
-;recursión: Recursión Natural
-;dom: path (list) x folder_name (String) x name (String)
-;rec: name (String)
-(define formar_ruta (lambda (path folder_name name)
-                      (if (null? path)
-                          (if (equal? "" folder_name)
-                              (string-append name "/")
-                              (string-append name "/" folder_name "/"))
-                          (formar_ruta (cdr path) folder_name (string-append name "/" (car path))))))
-
-;SELECTOR
-;descripción: Función que entrega la ruta en la que se encuentra el sistema.
-;dom: system
-;rec: ruta (list)
-(define ruta_actual (lambda (system) (list-ref (car system) 4)))
-
-;MODIFICADOR
-;descripción: Función que cambia la ruta actual.
-;dom: system x path (list)
-;rec: system
-(define modificar_path (lambda (system path)
-                         (list (list-ref system 0)
-                               (list-ref system 1)
-                               (list-ref system 2)
-                               (list-ref system 3)
-                               path)))
-
-;
-;descripción: Función que muestra todas las rutas de la unidad.
-;dom: carpetas (list) x lista (list)
-;rec: lista (list)
-(define rutas (lambda (carpetas lista)
-                (if (null? carpetas)
-                    lista
-                    (rutas (cdr carpetas) (append lista (list (formar_ruta (cdr (direccion_carpeta (car carpetas))) "" (car (direccion_carpeta (car carpetas))))))))))
-
-;
-;descripción: Función que define si una carpeta (ruta) ya existe.
-;dom: rutas (list) x path (String)
-;rec: boolean
-(define comparar_rutas (lambda (rutas path)
-                         (if (null? (filter (lambda (rutas) (equal? rutas path)) rutas))
-                             #t
-                             #f)))
-
-;MODIFICADOR
-;descripción: Función que retrocede a la carpeta anterior del directorio actual.
-;dom: system
-;rec: system
-(define retroceder_carpeta (lambda (system)
-                             (insertar (modificar_path (car system) (remover_carpeta_final (ruta_actual system)))
-                                       (list-ref system 1)
-                                       (list-ref system 2)
-                                       (list-ref system 3))))
-
-;MODIFICADOR
 ;descripción: Función que quita la última carpeta del directorio actual.
+;recursión: no
 ;dom: path (list)
 ;rec: path (list)
 (define remover_carpeta_final (lambda (path)
@@ -325,53 +86,194 @@
                                     path
                                     (reverse (cdr (reverse path))))))
 
-;MODIFICADOR
-;descripción: Función que cambia el directorio actual a root.
+;descripción: Función que retrocede a la carpeta anterior del directorio actual.
+;recursión: no
 ;dom: system
 ;rec: system
-(define volver_a_root (lambda (system)
-                        (insertar (modificar_path (car system) (root system))
-                                  (list-ref system 1)
-                                  (list-ref system 2)
-                                  (list-ref system 3))))
+(define retroceder_carpeta (lambda (system)
+                             (list (modificar_path (car system) (remover_carpeta_final (ruta_actual system)))
+                                       (unidades system)
+                                       (usuarios system)
+                                       (papelera system))))
 
-;SELECTOR
-;descripción: Función que entrega la carpeta root de la unidad actual.
-;dom: system
-;rec: root (list)
-(define root (lambda (system)
-               (list (car (list-ref (car system) 4)))))
-
-;OTRAS OPERACIONES
-;descripción:
-;dom:
-;rec:
-(define primero_carpeta_actual (lambda (carpetas nombre)
-                         (if (equal? nombre (formar_ruta (cdr (direccion_carpeta (car carpetas))) "" (car (direccion_carpeta (car carpetas)))))
-                             carpetas
-                             (primero_carpeta_actual (append (cdr carpetas) (list (car carpetas))) nombre))))
-
-;
-(define direccion_carpeta (lambda (carpeta)
-                            (caar carpeta)))
-
-;
-(define carpetas_sistema (lambda (unidades lista)
-                           (if (null? unidades)
-                               lista
-                               (carpetas_sistema (cdr unidades) (append lista (cdddar unidades))))))
-
-;
-(define ordenar_drives (lambda (drives letter)
-                         (if (equal? letter (caar drives))
-                             drives
-                             (ordenar_drives (append (cdr drives) (list (car drives))) letter))))
-
-;
+;descripción: Función que 
+;recursión: sí, recursión natural, porque
+;dom: lista1 x lista2 x posicion x reemplazo
+;rec: lista2 (ruta de modificada)
 (define modificar_posicion_carpeta (lambda (lista1 lista2 posicion reemplazo)
                              (if (= 0 posicion)
                                  (append lista2 (append (list reemplazo) (cdr lista1)))
                                  (modificar_posicion_carpeta (cdr lista1) (append lista2 (list (car lista1))) (- posicion 1) reemplazo))))
 
-;
-(define directorio_carpeta caar)
+;PERTENENCIA
+
+;descripción: Función que 
+;recursión: sí, recursión natural, porque 
+;dom: path_carpeta x path
+;rec: 
+(define igual_fuente2 (lambda (path_carpeta path)
+                       (if (null? path)
+                           #t
+                           (if (equal? (caaar path_carpeta) (car path))
+                               (igual_fuente2 (avanzar_directorio_carpeta path_carpeta) (cdr path))
+                               #f))))
+
+;descripción: Función que define si una carpeta (ruta) ya existe.
+;recursión: no
+;dom: rutas (list) x path (String)
+;rec: boolean
+(define comparar_rutas (lambda (rutas path)
+                         (if (null? (filter (lambda (rutas) (equal? rutas path)) rutas))
+                             #t
+                             #f)))
+
+;descripción: Función que 
+;recursión: no
+;dom: carpeta
+;rec:
+(define tiene_archivos (lambda (carpeta)
+                         (if (null? (cdr carpeta))
+                             #f
+                             #t)))
+
+;descripción: Función que 
+;recursión: no
+;dom: carpetas x path
+;rec:
+(define tiene_carpetas (lambda (carpetas path)
+                         (if (null? (filter (lambda (x) (igual_fuente x path)) (comparar carpetas path null)))
+                             #f
+                             #t)))
+
+;descripción: Función que 
+;recursión: sí, recursión natural,
+;dom: path_carpeta x path
+;rec: 
+(define igual_fuente (lambda (path_carpeta path)
+                       (if (null? path)
+                           #t
+                           (if (equal? (car path_carpeta) (car path))
+                               (igual_fuente (cdr path_carpeta) (cdr path))
+                               #f))))
+
+;OTRAS OPERACIONES
+
+;descripción: Función que forma una ruta como string. 
+;recursión: sí, recursión natural, porque se recorre la lista de path y se agregan a name para formar el string de la ruta.
+;dom: path (lista con la ruta) x folder_name (String) x name (lista con el primer string de la ruta)
+;rec: name
+(define formar_ruta (lambda (path folder_name name)
+                      (if (null? path)
+                          (if (equal? "" folder_name)
+                              (string-append name "/")
+                              (string-append name "/" folder_name "/"))
+                          (formar_ruta (cdr path) folder_name (string-append name "/" (car path))))))
+
+;descripción: Función que reordena las carpetas para dejar primero la carpeta en la que se realizan las operaciones.
+;recursión: sí, recursión natural, porque 
+;dom: carpetas (lista de folders) x nombre (String)
+;rec: carpetas (lista de folders ordenada)
+(define primero_carpeta_actual (lambda (carpetas nombre)
+                         (if (equal? nombre (formar_ruta (cdr (ruta_carpeta (car carpetas))) "" (car (ruta_carpeta (car carpetas)))))
+                             carpetas
+                             (primero_carpeta_actual (append (cdr carpetas) (list (car carpetas))) nombre))))
+
+;descripción: Función que 
+;recursión: no
+;dom: carpetas x path x path_objetivo
+;rec: 
+(define nuevas_carpetas (lambda (carpetas path path_objetivo)
+                          (map (lambda (x) (nueva_fuente x path_objetivo)) (subcarpetas carpetas path))))
+
+;descripción: Función que separa los strings en los ".".
+;recursión: no
+;dom: name (String)
+;rec: list
+(define separar_string (lambda (name)
+                         (string-split name "." #:trim? #t)))
+
+;descripción: Función que 
+;recursión: no
+;dom: name
+;rec:
+(define separar_string_ruta (lambda (name)
+                         (string-split name "/" #:trim? #t)))
+
+;descripción: Función que 
+;recursión: no
+;dom: carpeta
+;rec:
+(define avanzar_directorio_carpeta (lambda (carpeta)
+                                     (append (list (append (list (cdaar carpeta)) (cdar carpeta))) (cdr carpeta))))
+
+;descripción: Función que 
+;recursión: sí, recursión natural, porque 
+;dom: unidades x lista
+;rec:
+(define carpetas_sistema (lambda (unidades lista)
+                           (if (null? unidades)
+                               lista
+                               (carpetas_sistema (cdr unidades) (append lista (cdddar unidades))))))
+
+;descripción: Función que forma como string y muestra todas las rutas de carpetas de la unidad.
+;recursión: sí, recursión natural, porque recorre una a una las carpetas y las agrega a la lista.
+;dom: carpetas (list) x lista (list)
+;rec: lista (list)
+(define rutas (lambda (carpetas lista)
+                (if (null? carpetas)
+                    lista
+                    (rutas (cdr carpetas) (append lista (list (formar_ruta (cdr (ruta_carpeta (car carpetas))) "" (car (ruta_carpeta (car carpetas))))))))))
+
+;descripción: Función que cambia la ruta fuente de una carpeta.
+;recursión: no
+;dom: carpeta x path_objetivo
+;rec: carpeta (ruta fuente actualizada)
+(define nueva_fuente (lambda (carpeta path_objetivo)
+          (if (null? (cdr carpeta))
+              (list (append (list (append (separar_string_ruta path_objetivo) (caar carpeta))) (cdar carpeta)))
+              (list (append (list (append (separar_string_ruta path_objetivo) (caar carpeta))) (cdar carpeta)) (cdr carpeta)))))
+
+;descripción: Función que filtra las carpetas que tengan la misma fuente que la ruta ingresada.
+;recursión: no
+;dom: carpetas (lista de folders) x path ()
+;rec: carpetas (filtrada)
+(define tiene_carpetas2 (lambda (carpetas path)
+                         (filter (lambda (x) (igual_fuente2 x path)) (comparar2 carpetas path null))))
+
+;descripción: Función que 
+;recursión: no
+;dom: carpetas x path
+;rec:
+(define subcarpetas (lambda (carpetas path)
+                      (map (lambda (x) (igual_fuente3 x path)) (tiene_carpetas2 carpetas path))))
+
+;descripción: Función que 
+;recursión: 
+;dom: path_carpeta x path
+;rec:
+(define igual_fuente3 (lambda (path_carpeta path)
+                       (if (= 1 (length path))
+                           path_carpeta
+                           (igual_fuente3 (avanzar_directorio_carpeta path_carpeta) (cdr path)))))
+
+;descripción: Función que compara sin la ruta de las carpetas tienen mayor tamaño que la ingresada.
+;recursión: sí, recursión natural, porque recorre la lista de carpetas y quita las que no cumplen la condición.
+;dom: carpetas (lista de folders) x path (ruta) x lista (lista con las carpetas)
+;rec: lista
+(define comparar2 (lambda (carpetas path lista)
+                   (if (null? carpetas)
+                       lista
+                       (if (> (length (caaar carpetas)) (length path))
+                           (comparar2 (cdr carpetas) path (append lista (list (car carpetas))))
+                           (comparar2 (cdr carpetas) path lista)))))
+
+;descripción: Función que que compara y guarda si es que el largo de una ruta es menor o igual al ingresado.
+;recursión: sí, recursión natural, porque 
+;dom: carpetas x path x lista
+;rec: lista
+(define comparar (lambda (carpetas path lista)
+                   (if (null? carpetas)
+                       lista
+                       (if (> (length (caaar carpetas)) (length path))
+                           (comparar (cdr carpetas) path (append lista (list (caaar carpetas))))
+                           (comparar (cdr carpetas) path lista)))))
