@@ -2,6 +2,10 @@
 (provide fecha)
 ;Implementación del TDA fecha
 
+#|REPRESENTACIÓN: Este TDA representa una fecha.
+    Una lista de 2 listas, la primera tiene las horas, minutos y
+segundos. La segunda lista tiene el día, mes y año.|#
+
 ;CONSTRUCTOR
 ;descripción: Función que entrega la hora y fecha.
 ;dom: nada

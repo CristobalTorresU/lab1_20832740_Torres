@@ -15,7 +15,7 @@ char.|#
 ;dom: nombre (String) x tipo_archivo (String) x contenido (String)
 ;rec: file
 (define file (lambda (nombre tipo_archivo contenido . seguridad)
-               (list nombre tipo_archivo contenido seguridad)))
+               (list (string-downcase nombre) (string-downcase tipo_archivo) contenido seguridad)))
 
 ;SELECTORES
 
@@ -43,16 +43,6 @@ char.|#
                                                                (append lista (list (nombre_archivo (car archivos))))))))
 
 ;MODIFICADORES
-
-;MOVER A folder.rkt!!!!
-;descripción: 
-;recursión: sí, recursión natural, porque elimina una a una las carpetas que 
-;dom: carpetas (lista de carpetas) x carpetas_a_eliminar (lista de carpetas que se deben eliminar)
-;rec: carpetas (lista de carpetas)
-(define eliminar_carpetas (lambda (carpetas carpetas_a_eliminar)
-                            (if (null? carpetas_a_eliminar)
-                                carpetas
-                                (eliminar_carpetas (remove (car carpetas_a_eliminar) carpetas) (cdr carpetas_a_eliminar)))))
 
 ;descripción: Función que elimina un archivo en particular de una unidad.
 ;recursión: no
@@ -87,17 +77,6 @@ char.|#
                                                     (fecha)
                                                     (list-ref (car carpeta) 4)))))
 
-;PERTENENCIA
-
-;descripción: Función que indica si el nombre de un archivo existe en una carpeta.
-;recursión: no
-;dom: archivos (lista de files) x file_name (String)
-;rec: booleano
-(define buscar_archivos (lambda (archivos file_name)
-                         (if (null? (filter (lambda (archivos) (equal? archivos file_name)) archivos))
-                             #t
-                             #f)))
-
 ;OTRAS OPERACIONES
 
 ;descripción: Función que reordena los archivos para dejar primero el archivo que se quiere modificar.
@@ -115,3 +94,12 @@ char.|#
 ;rec: ruta (actualizada)
 (define avanzar_ruta_carpeta (lambda (ruta)
                                      (append (list (append (list (cdaar ruta)) (cdar ruta))) (cdr ruta))))
+
+;descripción: Función que indica si el nombre de un archivo existe en una carpeta.
+;recursión: no
+;dom: archivos (lista de files) x file_name (String)
+;rec: booleano
+(define buscar_archivos (lambda (archivos file_name)
+                         (if (null? (filter (lambda (archivos) (equal? archivos file_name)) archivos))
+                             #t
+                             #f)))

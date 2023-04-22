@@ -4,11 +4,17 @@
 
 ;Implementación TDA drive
 
-#|REPRESENTACIÓN: |#
+#|REPRESENTACIÓN: Este TDA representa un drive (unidad de almacenamiento), con sus datos y carpetas.
+    Se utiliza una lista que contiene la letra del drive como char, el nombre y la capacidad como string,
+y después las carpetas como TDA folder.|#
 
 ;CONSTRUCTORES
-(define drive (lambda (system letter name capacity)
-                (list (char-downcase letter) name capacity (list (list (list (string (char-downcase letter) #\:)) (usuario_actual system) (fecha) (fecha) null)))))
+;descripción: Función que crea un drive.
+;recursión: no
+;dom: usuario_creador (String) x letter (Char) x name (String) x capacity (String)
+;rec: drive
+(define drive (lambda (creador letter name capacity)
+                (list (char-downcase letter) name capacity (list (list (list (string (char-downcase letter) #\:)) creador (fecha) (fecha) null)))))
 
 ;SELECTORES
 
@@ -27,12 +33,12 @@
 ;descripción: Función que permite modificar el path (ruta en la que se realizan las operaciones).
 ;recursión: no
 ;dom: system x path (list)
-;rec: 
-(define modificar_path (lambda (system path)
-                         (list (datos_sistema system)
-                               (unidades system)
-                               (usuarios system)
-                               (papelera system)
+;rec: datos_sistema (actualizado)
+(define modificar_path (lambda (datos_sistema path)
+                         (list (list-ref datos_sistema 0)
+                               (list-ref datos_sistema 1)
+                               (list-ref datos_sistema 2)
+                               (list-ref datos_sistema 3)
                                path)))
 
 ;descripción: Función que permite el drive actual (en el que se realizan las operaciones) del sistema.
@@ -53,10 +59,19 @@
 (define agregar_drive (lambda (drives nuevo_drive)
                             (append drives (list nuevo_drive))))
 
-;PERTENENCIA
+;OTRAS OPERACIONES
+
+;descripción: Función que reordena los drives (unidades) del sistema.
+;recursión: sí, recursión natural, porque se avanza y reordenan los drives hasta que se cumpla la condición.
+;dom: drives x letter (char)
+;rec: drives
+(define ordenar_drives (lambda (drives letter)
+                         (if (equal? letter (caar drives))
+                             drives
+                             (ordenar_drives (append (cdr drives) (list (car drives))) letter))))
 
 ;descripión: Función que busca si existe un drive en el sistema.
-;recursión: sí, recursión natural, porque recorre la lista de drives.
+;recursión: sí, recursión natural, porque recorre la lista de drives hasta encontrar el ingresado.
 ;dom: letter (char) x drives
 ;rec: boolean
 (define buscar_drive (lambda (letter drives)
@@ -64,14 +79,3 @@
                              (if (equal? letter (caar drives))
                                  #t
                                  (buscar_drive letter (cdr drives))))))
-
-;OTRAS OPERACIONES
-
-;descripción: Función que reordena los drives (unidades) del sistema.
-;recursión: sí, recursión natural, porque
-;dom: drives x letter (char)
-;rec: drives
-(define ordenar_drives (lambda (drives letter)
-                         (if (equal? letter (caar drives))
-                             drives
-                             (ordenar_drives (append (cdr drives) (list (car drives))) letter))))

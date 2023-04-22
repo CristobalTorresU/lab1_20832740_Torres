@@ -4,9 +4,12 @@
 
 ;Implementación del TDA user
 
-#|REPRESENTACIÓN: |#
+#|REPRESENTACIÓN: Este TDA representa un user.
+    Una lista con el nombre del usuario como string en la primera posición, y la fecha
+de modificación como TDA fecha en la segunda posición.|#
+
 ;CONSTRUCTOR
-;descripción: Función que permite crear un usuario (user).
+;descripción: Función que permite crear un user.
 ;recursión: no
 ;dom: userName (String)
 ;rec: user
@@ -37,10 +40,10 @@
 (define agregar_usuario (lambda (usuarios nuevo_usuario)
                             (append usuarios (list nuevo_usuario))))
 
-;PERTENENCIA
+;OTRAS OPERACIONES
 
 ;descripción: Función que busca el nombre de un usuario
-;recursión: sí, recursión natural, porque
+;recursión: sí, recursión natural, porque busca usuario por usuario hasta encontrar el ingresado o que la lista este vacía.
 ;dom: userName (String) x usuarios
 ;rec: boolean
 (define buscar_usuario (lambda (userName usuarios)
@@ -48,5 +51,3 @@
                              (if (equal? userName (caar usuarios))
                                  #t
                                  (buscar_usuario userName (cdr usuarios))))))
-
-;OTRAS OPERACIONES
