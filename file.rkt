@@ -53,7 +53,8 @@ char.|#
                                                      (nombre_unidad (unidad_actual system))
                                                      (size_unidad (unidad_actual system)))
                                                (list (remove (seleccionar_archivo (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))) name)
-                                                             (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))))
+                                                             (append (actualizar_fecha_modificacion (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))))
+                                                                     (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))))))
                                                (resto_carpetas (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))))
                                        (resto_unidades system))))
 
@@ -65,17 +66,6 @@ char.|#
                                     (if (or (null? (archivos carpeta)) (equal? #t (buscar_archivos (nombres_archivos_unidad (archivos carpeta) null) (nombre_archivo file))))
                                         (append (actualizar_fecha_modificacion carpeta) (cdr carpeta) (list file))
                                         carpeta)))
-
-;descripción: Función que actualiza la fecha de modificación de una carpeta.
-;recursión: no
-;dom: carpeta (folder)
-;rec: folder
-(define actualizar_fecha_modificacion (lambda (carpeta)
-                                        (list (list (list-ref (car carpeta) 0)
-                                                    (list-ref (car carpeta) 1)
-                                                    (list-ref (car carpeta) 2)
-                                                    (fecha)
-                                                    (list-ref (car carpeta) 4)))))
 
 ;OTRAS OPERACIONES
 

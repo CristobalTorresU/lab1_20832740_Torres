@@ -36,6 +36,8 @@ seguridad como una lista de char.|#
 
 (define resto_carpetas cdr) ;selecciona las carpetas en las que no se realizan las operaciones
 
+(define nombre_carpeta cadaar) ;selecciona el nombre de la carpeta
+
 ;MODIFICADORES
                                        
 ;descripción: Función que elimina las carpetas a remover una lista de carpetas.
@@ -106,13 +108,37 @@ seguridad como una lista de char.|#
                                  (modificar_posicion_carpeta (cdr lista1) (append lista2 (list (car lista1))) (- posicion 1) reemplazo))))
 
 ;descripción: Función que elimina carpetas de una lista de carpetas.
-;recursión: sí, recursión natural, porque elimina una a una las carpetas de la lista.
+;recursión: sí, recursión natural, porque recorre la lista de carpetas a eliminar una a una.
 ;dom: carpetas (lista de carpetas) x carpetas_a_eliminar (lista de carpetas que se deben eliminar)
 ;rec: carpetas (lista de carpetas)
 (define eliminar_carpetas (lambda (carpetas carpetas_a_eliminar)
                             (if (null? carpetas_a_eliminar)
                                 carpetas
                                 (eliminar_carpetas (remove (car carpetas_a_eliminar) carpetas) (cdr carpetas_a_eliminar)))))
+
+;descripción: Función que actualiza la fecha de modificación de una carpeta.
+;recursión: no
+;dom: carpeta (folder)
+;rec: folder
+(define actualizar_fecha_modificacion (lambda (carpeta)
+                                        (list (list (list-ref (car carpeta) 0)
+                                                    (list-ref (car carpeta) 1)
+                                                    (list-ref (car carpeta) 2)
+                                                    (fecha)
+                                                    (list-ref (car carpeta) 4)))))
+
+;descripción: Función que busca una carpeta en la primera unidad y cambia su fecha de modificación.
+;recursión: no
+;dom: drives x target (String)
+;rec: drives (actualizado)
+(define cambiar_fecha (lambda (drives target)
+                               (append (list (append (list (letra_unidad (car drives))
+                                             (nombre_unidad (car drives))
+                                             (size_unidad (car drives)))
+                                                     (list (append (actualizar_fecha_modificacion (carpeta_actual (primero_carpeta_actual (carpetas (car drives)) target)))
+                                                     (cdr (carpeta_actual (primero_carpeta_actual (carpetas (car drives)) target)))))
+                                                     (resto_carpetas (primero_carpeta_actual (carpetas (car drives)) target))))
+                                       (cdr drives))))
 
 ;OTRAS OPERACIONES
 
