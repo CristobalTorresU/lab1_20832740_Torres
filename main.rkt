@@ -5,6 +5,7 @@
 (require "folder.rkt")
 (require "file.rkt")
 (require "fecha.rkt")
+(provide (all-defined-out))
 
 ;descripción: Permite crear un sistema y registra la fecha de creación.
 ;recursión: no
@@ -194,6 +195,39 @@
 ;recursión: no
 ;dom: system x source (file or folder) (String) x target path (String)
 ;rec: system
+;(define copy (lambda (system)
+ ;              (lambda (source target)
+  ;               (if (not (= 1 (length (separar_string (string-downcase source)))))
+   ;                  (if (equal? #t (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null) (string-downcase source)))
+    ;                 system
+     ;                (if (equal? #t (comparar_rutas (rutas (carpetas_sistema (unidades system) null) null) (string-downcase target)))
+      ;                   system
+       ;                 (if (equal? #f (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))) (string-downcase target)))) null) (string-downcase source)))
+        ;                     system
+         ;                    (list (datos_sistema system)
+          ;                             (ordenar_drives (append (list (append (list (letra_unidad (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0))))
+           ;                                          (nombre_unidad (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0))))
+            ;                                         (size_unidad (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))))
+             ;                                  (list (agregar_archivo_a_carpeta (carpeta_actual (primero_carpeta_actual (carpetas (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))) (string-downcase target)))
+              ;                                                                  (seleccionar_archivo (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))) (string-downcase source))))
+               ;                                (resto_carpetas (primero_carpeta_actual (carpetas (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))) (string-downcase target)))))
+                ;                               (cdr (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))) (string-ref (car (ruta_actual system)) 0))
+                 ;                  (usuarios system)
+                  ;                 (papelera system)))))
+                   ;  (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) (string-downcase source) (car (ruta_actual system)))))
+                    ;     system
+                     ;    (if (equal? #t (comparar_rutas (rutas (carpetas_sistema (unidades system) null) null) (string-downcase target)))
+                      ;       system
+                       ;      (if (equal? #f (comparar_rutas (rutas (carpetas_sistema (unidades system) null) null) (formar_ruta (cdr (separar_string_ruta (string-downcase target))) (string-downcase source) (car (separar_string_ruta (string-downcase target))))))
+                        ;         system
+                         ;        (list (datos_sistema system)
+                          ;       (ordenar_drives (cambiar_fecha (append (list (append (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))
+                           ;                            (list (append (folder (append (separar_string_ruta (string-downcase target)) (list (string-downcase source))) (usuario_actual system))
+                            ;                                         (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) (string-downcase source) (car (ruta_actual system))))))))))
+                             ;            (nuevas_carpetas (carpetas_unidad_actual system) (append (ruta_actual system) (list (string-downcase source))) (string-downcase target))
+                              ;           (cdr (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))) target) (string-ref (car (ruta_actual system)) 0))
+                               ;        (usuarios system)
+                                ;       (papelera system)))))))))
 (define copy (lambda (system)
                (lambda (source target)
                  (if (not (= 1 (length (separar_string (string-downcase source)))))
@@ -220,10 +254,10 @@
                              (if (equal? #f (comparar_rutas (rutas (carpetas_sistema (unidades system) null) null) (formar_ruta (cdr (separar_string_ruta (string-downcase target))) (string-downcase source) (car (separar_string_ruta (string-downcase target))))))
                                  system
                                  (list (datos_sistema system)
-                                 (ordenar_drives (cambiar_fecha (append (list (append (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))
+                                 (ordenar_drives (cambiar_fecha (append (list (append (append (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))
                                                        (list (append (folder (append (separar_string_ruta (string-downcase target)) (list (string-downcase source))) (usuario_actual system))
-                                                                     (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) (string-downcase source) (car (ruta_actual system))))))))))
-                                         (nuevas_carpetas (carpetas_unidad_actual system) (append (ruta_actual system) (list (string-downcase source))) (string-downcase target))
+                                                                     (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) (string-downcase source) (car (ruta_actual system)))))))))
+                                         (nuevas_carpetas (carpetas_unidad_actual system) (append (ruta_actual system) (list (string-downcase source))) (string-downcase target))))
                                          (cdr (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))) target) (string-ref (car (ruta_actual system)) 0))
                                        (usuarios system)
                                        (papelera system)))))))))
