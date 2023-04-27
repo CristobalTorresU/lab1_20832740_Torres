@@ -1,5 +1,7 @@
 #lang racket
-(require "drive.rkt" "folder.rkt" "fecha.rkt" "user.rkt")
+(require "system_20832740_TorresUndurraga.rkt")
+(require "drive_20832740_TorresUndurraga.rkt")
+(require "folder_20832740_TorresUndurraga.rkt")
 (provide (all-defined-out))
 
 ;Implementación del TDA file
@@ -70,7 +72,7 @@ char.|#
 ;OTRAS OPERACIONES
 
 ;descripción: Función que reordena los archivos para dejar primero el archivo que se quiere modificar.
-;recursión: sí, recursión natural, porque
+;recursión: sí, recursión natural, porque cambia la posición del primer archivo hasta que sea el ingresado.
 ;dom: archivos (lista de archivos) x name (String)
 ;rec: archivos (lista de archivos)
 (define primero_archivo_actual (lambda (archivos name)

@@ -1,10 +1,10 @@
 #lang racket
-(require "system.rkt")
-(require "drive.rkt")
-(require "user.rkt")
-(require "folder.rkt")
-(require "file.rkt")
-(require "fecha.rkt")
+(require "system_20832740_TorresUndurraga.rkt")
+(require "drive_20832740_TorresUndurraga.rkt")
+(require "user_20832740_TorresUndurraga.rkt")
+(require "folder_20832740_TorresUndurraga.rkt")
+(require "file_20832740_TorresUndurraga.rkt")
+(require "fecha_20832740_TorresUndurraga.rkt")
 (provide (all-defined-out))
 
 ;descripción: Permite crear un sistema y registra la fecha de creación.
@@ -26,7 +26,7 @@
 (define add-drive (lambda (system)
                     (lambda (letter name capacity)
                       (if (equal? #f (buscar_drive (char-downcase letter) (unidades system)))
-                      (list (datos_sistema system)
+                      (armar_sistema (datos_sistema system)
                                 (agregar_drive (unidades system) (drive (usuario_actual system) letter name capacity))
                                 (usuarios system)
                                 (papelera system))
@@ -38,7 +38,7 @@
 ;rec: system
 (define register (lambda (system)
                    (lambda (userName)
-                     (list (datos_sistema system)
+                     (armar_sistema (datos_sistema system)
                                (unidades system)
                                (if (equal? #t (buscar_usuario userName (usuarios system)))
                                    (usuarios system)
@@ -52,7 +52,7 @@
 (define login (lambda (system)
                 (lambda (userName)
                        (if (and (equal? "N/A" (usuario_actual system)) (equal? #t (buscar_usuario userName (usuarios system))))
-                           (list (modificar_user (car system) userName)
+                           (armar_sistema (modificar_user (car system) userName)
                                      (unidades system)
                                      (usuarios system)
                                      (papelera system))
@@ -63,7 +63,7 @@
 ;dom: system x userName (String)
 ;rec: system
 (define logout (lambda (system)
-                 (list (modificar_user (car system) "N/A")
+                 (armar_sistema (modificar_user (car system) "N/A")
                            (unidades system)
                            (usuarios system)
                            (papelera system))))
@@ -76,7 +76,7 @@
                        (lambda (letter)
                          (if (not (equal? "N/A" (usuario_actual system)))
                              (if (equal? #t (buscar_drive (char-downcase letter) (unidades system)))
-                                 (list (modificar_path (modificar_drive (car system) (char-downcase letter)) (list (string (char-downcase letter) #\:)))
+                                 (armar_sistema (modificar_path (modificar_drive (car system) (char-downcase letter)) (list (string (char-downcase letter) #\:)))
                                            (ordenar_drives (unidades system) (char-downcase letter))
                                            (usuarios system)
                                            (papelera system))
@@ -90,7 +90,7 @@
 (define md (lambda (system)
              (lambda (name)
                    (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) (string-downcase name) (car (ruta_actual system)))))
-                       (list (datos_sistema system)
+                       (armar_sistema (datos_sistema system)
                                  (append (list (append (list (letra_unidad (unidad_actual system))
                                                      (nombre_unidad (unidad_actual system))
                                                      (size_unidad (unidad_actual system)))
@@ -113,12 +113,12 @@
                    (if (equal? path "..")
                        (retroceder_carpeta system)
                        (if (equal? #f (comparar_rutas (rutas (carpetas_sistema (unidades system) null) null) (string-downcase path)))
-                           (list (modificar_path (car ((run system switch-drive) (string-ref (string-downcase path) 0))) (separar_string_ruta (string-downcase path)))
+                           (armar_sistema (modificar_path (car ((run system switch-drive) (string-ref (string-downcase path) 0))) (separar_string_ruta (string-downcase path)))
                                      (unidades ((run system switch-drive) (string-ref (string-downcase path) 0)))
                                      (usuarios system)
                                      (papelera system))
                            (if (equal? #f (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) (string-downcase path) (car (ruta_actual system)))))
-                               (list (modificar_path (car system) (append (ruta_actual system) (separar_string_ruta (string-downcase path))))
+                               (armar_sistema (modificar_path (car system) (append (ruta_actual system) (separar_string_ruta (string-downcase path))))
                                          (unidades system)
                                          (usuarios system)
                                          (papelera system))
@@ -130,7 +130,7 @@
 ;rec: system
 (define add-file (lambda (system)
                    (lambda (file)
-                     (list (datos_sistema system)
+                     (armar_sistema (datos_sistema system)
                                (append (list (append (list (letra_unidad (unidad_actual system))
                                                      (nombre_unidad (unidad_actual system))
                                                      (size_unidad (unidad_actual system)))
@@ -148,14 +148,14 @@
               (lambda (name)
                 (if (not (= 1 (length (separar_string (string-downcase name)))))
                   (if (equal? #f (buscar_archivos (nombres_archivos_unidad (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))) null) (string-downcase name)))
-                              (list (datos_sistema system)
+                              (armar_sistema (datos_sistema system)
                                         (eliminar_archivo system (string-downcase name))
                                         (usuarios system)
                                         (append (papelera system) (list (list (ruta_actual system) (seleccionar_archivo (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))) (string-downcase name))))))
                               system)
                   (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) (string-downcase name) (car (ruta_actual system)))))
                       system
-                      (list (datos_sistema system)
+                      (armar_sistema (datos_sistema system)
                                 (append (list (append (list (caar (unidades system)))
                                         (list (cadar (unidades system)))
                                         (list (caddar (unidades system)))
@@ -163,11 +163,11 @@
                                                                      (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))))))
                                                                    (resto_carpetas (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))))
                                                            (append (list (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) (string-downcase name) (car (ruta_actual system))))))
-                                                                   (tiene_carpetas2 (carpetas_unidad_actual system) (append (ruta_actual system) (list (string-downcase name))))))))
+                                                                   (filtrar_por_fuente (carpetas_unidad_actual system) (append (ruta_actual system) (list (string-downcase name))))))))
                                         (cdr (unidades system)))
                                 (usuarios system)
                                 (append (papelera system) (append (list (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) (string-downcase name) (car (ruta_actual system))))))
-                                                                   (tiene_carpetas2 (carpetas_unidad_actual system) (append (ruta_actual system) (list (string-downcase name))))))))))))
+                                                                   (filtrar_por_fuente (carpetas_unidad_actual system) (append (ruta_actual system) (list (string-downcase name))))))))))))
 
 ;descripción: Función que elimina una carpeta que este vacía.
 ;recursión: no
@@ -179,7 +179,7 @@
                    system
                    (if (and (equal? #f (tiene_archivos (car (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) (string-downcase name) (car (ruta_actual system)))))))
                             (equal? #f (tiene_carpetas (carpetas_unidad_actual system) (append (ruta_actual system) (list (string-downcase name))))))
-                       (list (datos_sistema system)
+                       (armar_sistema (datos_sistema system)
                                  (append (list (append (list (letra_unidad (unidad_actual system))
                                                      (nombre_unidad (unidad_actual system))
                                                      (size_unidad (unidad_actual system)))
@@ -195,39 +195,6 @@
 ;recursión: no
 ;dom: system x source (file or folder) (String) x target path (String)
 ;rec: system
-;(define copy (lambda (system)
- ;              (lambda (source target)
-  ;               (if (not (= 1 (length (separar_string (string-downcase source)))))
-   ;                  (if (equal? #t (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null) (string-downcase source)))
-    ;                 system
-     ;                (if (equal? #t (comparar_rutas (rutas (carpetas_sistema (unidades system) null) null) (string-downcase target)))
-      ;                   system
-       ;                 (if (equal? #f (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))) (string-downcase target)))) null) (string-downcase source)))
-        ;                     system
-         ;                    (list (datos_sistema system)
-          ;                             (ordenar_drives (append (list (append (list (letra_unidad (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0))))
-           ;                                          (nombre_unidad (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0))))
-            ;                                         (size_unidad (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))))
-             ;                                  (list (agregar_archivo_a_carpeta (carpeta_actual (primero_carpeta_actual (carpetas (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))) (string-downcase target)))
-              ;                                                                  (seleccionar_archivo (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))) (string-downcase source))))
-               ;                                (resto_carpetas (primero_carpeta_actual (carpetas (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))) (string-downcase target)))))
-                ;                               (cdr (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))) (string-ref (car (ruta_actual system)) 0))
-                 ;                  (usuarios system)
-                  ;                 (papelera system)))))
-                   ;  (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) (string-downcase source) (car (ruta_actual system)))))
-                    ;     system
-                     ;    (if (equal? #t (comparar_rutas (rutas (carpetas_sistema (unidades system) null) null) (string-downcase target)))
-                      ;       system
-                       ;      (if (equal? #f (comparar_rutas (rutas (carpetas_sistema (unidades system) null) null) (formar_ruta (cdr (separar_string_ruta (string-downcase target))) (string-downcase source) (car (separar_string_ruta (string-downcase target))))))
-                        ;         system
-                         ;        (list (datos_sistema system)
-                          ;       (ordenar_drives (cambiar_fecha (append (list (append (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))
-                           ;                            (list (append (folder (append (separar_string_ruta (string-downcase target)) (list (string-downcase source))) (usuario_actual system))
-                            ;                                         (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) (string-downcase source) (car (ruta_actual system))))))))))
-                             ;            (nuevas_carpetas (carpetas_unidad_actual system) (append (ruta_actual system) (list (string-downcase source))) (string-downcase target))
-                              ;           (cdr (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))) target) (string-ref (car (ruta_actual system)) 0))
-                               ;        (usuarios system)
-                                ;       (papelera system)))))))))
 (define copy (lambda (system)
                (lambda (source target)
                  (if (not (= 1 (length (separar_string (string-downcase source)))))
@@ -237,7 +204,7 @@
                          system
                         (if (equal? #f (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))) (string-downcase target)))) null) (string-downcase source)))
                              system
-                             (list (datos_sistema system)
+                             (armar_sistema (datos_sistema system)
                                        (ordenar_drives (append (list (append (list (letra_unidad (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0))))
                                                      (nombre_unidad (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0))))
                                                      (size_unidad (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))))
@@ -253,7 +220,7 @@
                              system
                              (if (equal? #f (comparar_rutas (rutas (carpetas_sistema (unidades system) null) null) (formar_ruta (cdr (separar_string_ruta (string-downcase target))) (string-downcase source) (car (separar_string_ruta (string-downcase target))))))
                                  system
-                                 (list (datos_sistema system)
+                                 (armar_sistema (datos_sistema system)
                                  (ordenar_drives (cambiar_fecha (append (list (append (append (car (ordenar_drives (unidades system) (string-ref (string-downcase target) 0)))
                                                        (list (append (folder (append (separar_string_ruta (string-downcase target)) (list (string-downcase source))) (usuario_actual system))
                                                                      (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) (string-downcase source) (car (ruta_actual system)))))))))
@@ -270,7 +237,7 @@
                (lambda (source target)
                  (if (equal? ((run system copy) (string-downcase source) (string-downcase target)) system)
                      system
-                     (list (datos_sistema ((run ((run system copy) (string-downcase source) (string-downcase target)) del) (string-downcase source)))
+                     (armar_sistema (datos_sistema ((run ((run system copy) (string-downcase source) (string-downcase target)) del) (string-downcase source)))
                            (unidades ((run ((run system copy) (string-downcase source) (string-downcase target)) del) (string-downcase source)))
                            (usuarios system)
                            (papelera system))))))
@@ -286,13 +253,13 @@
                         system
                         (if (equal? #f (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) (string-downcase newName) (car (ruta_actual system)))))
                             system
-                            (list (datos_sistema system)
+                            (armar_sistema (datos_sistema system)
                                       (append (list (append (list (letra_unidad (unidad_actual system))
                                                      (nombre_unidad (unidad_actual system))
                                                      (size_unidad (unidad_actual system)))
                                               (quitar_carpetas_antiguas (carpetas_unidad_actual system) (string-downcase newName) (length (append (ruta_actual system) (list (string-downcase currentName))))
                                                                         (append (list (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) (string-downcase currentName) (car (ruta_actual system))))))
-                                                                                (tiene_carpetas2 (carpetas_unidad_actual system) (append (ruta_actual system) (list (string-downcase currentName))))))))
+                                                                                (filtrar_por_fuente (carpetas_unidad_actual system) (append (ruta_actual system) (list (string-downcase currentName))))))))
                                        (resto_unidades system))
                                       (usuarios system)
                                       (papelera system))))
@@ -300,7 +267,7 @@
                         system
                         (if (equal? #f (buscar_archivos (nombres_archivos_unidad (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null) (string-downcase newName)))
                             system
-                            (list (datos_sistema system)
+                            (armar_sistema (datos_sistema system)
                                   (cambiar_fecha (append (list (append (list (letra_unidad (unidad_actual system))
                                                      (nombre_unidad (unidad_actual system))
                                                      (size_unidad (unidad_actual system)))

@@ -1,5 +1,5 @@
 #lang racket
-(require "fecha.rkt")
+(require "fecha_20832740_TorresUndurraga.rkt")
 (provide (all-defined-out))
 
 ;Implementación del TDA user
@@ -18,7 +18,7 @@ de modificación como TDA fecha en la segunda posición.|#
 
 ;SELECTORES
 
-(define usuario_actual (lambda (system) (list-ref (car system) 3))) ;selecciona el usuario que esta realizando las operaciones
+(define nombre_usuario car) ;selecciona el nombre de un user
 
 ;MODIFICADORES
 
@@ -48,6 +48,6 @@ de modificación como TDA fecha en la segunda posición.|#
 ;rec: boolean
 (define buscar_usuario (lambda (userName usuarios)
                          (if (null? usuarios) #f
-                             (if (equal? userName (caar usuarios))
+                             (if (equal? userName (nombre_usuario (car usuarios)))
                                  #t
                                  (buscar_usuario userName (cdr usuarios))))))

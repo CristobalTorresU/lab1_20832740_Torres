@@ -1,5 +1,7 @@
 #lang racket
-(require "system.rkt" "fecha.rkt" "drive.rkt" "user.rkt")
+(require "system_20832740_TorresUndurraga.rkt")
+(require "fecha_20832740_TorresUndurraga.rkt")
+(require "drive_20832740_TorresUndurraga.rkt")
 (provide (all-defined-out))
 
 ;Implementación del TDA folder
@@ -27,12 +29,10 @@ seguridad como una lista de char.|#
 (define ruta_carpeta caar) ;selecciona la ruta de una carpeta
 
 (define root (lambda (system)
-               (list (car (list-ref (car system) 4))))) ;selecciona la dirección del root de la unidad
+               (list (car (ruta_actual system))))) ;selecciona la dirección del root de la unidad
 
 (define carpetas_unidad_actual (lambda (system)
                                  (cdddar (unidades system)))) ;selecciona las carpetas de la unidad en la que se realizan las operaciones
-
-(define ruta_actual (lambda (system) (list-ref (car system) 4))) ;selecciona la ruta en la que se realizan las operaciones
 
 (define resto_carpetas cdr) ;selecciona las carpetas en las que no se realizan las operaciones
 
@@ -48,7 +48,7 @@ seguridad como una lista de char.|#
                                    (if (null? carpetas_a_remover)
                                        carpetas
                                        (quitar_carpetas_antiguas (append (remove (car carpetas_a_remover) carpetas)
-                                                                         (list (append (list (list (modificar_posicion_carpeta (cdr (ruta_carpeta (car carpetas_a_remover)))
+                                                                         (list (append (list (list (modificar_posicion_ruta (cdr (ruta_carpeta (car carpetas_a_remover)))
                                                                                                                                (list (car (ruta_carpeta (car carpetas_a_remover))))
                                                                                                                                (- posicion 2) newName)
                                                                                                    (list-ref (caar carpetas_a_remover) 1)
@@ -99,13 +99,13 @@ seguridad como una lista de char.|#
                                        (papelera system))))
 
 ;descripción: Función que modifica la ruta de una carpeta en una posición específica.
-;recursión: sí, recursión natural, porque
+;recursión: sí, recursión natural, porque recorre la lista de la ruta hasta llegar a la posición ingresada.
 ;dom: lista1 x lista2 x posicion x reemplazo
 ;rec: lista2 (ruta de modificada)
-(define modificar_posicion_carpeta (lambda (lista1 lista2 posicion reemplazo)
+(define modificar_posicion_ruta (lambda (lista1 lista2 posicion reemplazo)
                              (if (= 0 posicion)
                                  (append lista2 (append (list reemplazo) (cdr lista1)))
-                                 (modificar_posicion_carpeta (cdr lista1) (append lista2 (list (car lista1))) (- posicion 1) reemplazo))))
+                                 (modificar_posicion_ruta (cdr lista1) (append lista2 (list (car lista1))) (- posicion 1) reemplazo))))
 
 ;descripción: Función que elimina carpetas de una lista de carpetas.
 ;recursión: sí, recursión natural, porque recorre la lista de carpetas a eliminar una a una.
@@ -221,35 +221,35 @@ seguridad como una lista de char.|#
 ;recursión: no
 ;dom: carpetas (lista de folders) x path ()
 ;rec: carpetas (filtrada)
-(define tiene_carpetas2 (lambda (carpetas path)
-                         (filter (lambda (x) (igual_fuente2 x path)) (comparar2 carpetas path null))))
+(define filtrar_por_fuente (lambda (carpetas path)
+                         (filter (lambda (x) (igual_fuente_eliminar x path)) (comparar_largo_rutas carpetas path null))))
 
 ;descripción: Función que recolecta todas las subcarpetas de una ruta.
 ;recursión: no
 ;dom: carpetas x path
 ;rec: carpetas (solo las subcarpetas)
 (define subcarpetas (lambda (carpetas path)
-                      (map (lambda (x) (igual_fuente3 x path)) (tiene_carpetas2 carpetas path))))
+                      (map (lambda (x) (carpeta_igual_fuente x path)) (filtrar_por_fuente carpetas path))))
 
-;descripción: Función que 
-;recursión: sí, recursión natural, porque 
+;descripción: Función que modifica la ruta de una carpeta hasta eliminar el path de esta.
+;recursión: sí, recursión natural, porque recorre y compara uno a uno path_carpeta y path.
 ;dom: path_carpeta x path
-;rec:
-(define igual_fuente3 (lambda (path_carpeta path)
+;rec: path_carpeta
+(define carpeta_igual_fuente (lambda (path_carpeta path)
                        (if (= 1 (length path))
                            path_carpeta
-                           (igual_fuente3 (avanzar_directorio_carpeta path_carpeta) (cdr path)))))
+                           (carpeta_igual_fuente (avanzar_directorio_carpeta path_carpeta) (cdr path)))))
 
-;descripción: Función que compara sin la ruta de las carpetas tienen mayor tamaño que la ingresada.
+;descripción: Función que compara si la ruta de las carpetas tienen mayor tamaño que la ingresada.
 ;recursión: sí, recursión natural, porque recorre la lista de carpetas y quita las que no cumplen la condición.
 ;dom: carpetas (lista de folders) x path (ruta) x lista (lista con las carpetas)
 ;rec: lista
-(define comparar2 (lambda (carpetas path lista)
+(define comparar_largo_rutas (lambda (carpetas path lista)
                    (if (null? carpetas)
                        lista
                        (if (> (length (caaar carpetas)) (length path))
-                           (comparar2 (cdr carpetas) path (append lista (list (car carpetas))))
-                           (comparar2 (cdr carpetas) path lista)))))
+                           (comparar_largo_rutas (cdr carpetas) path (append lista (list (car carpetas))))
+                           (comparar_largo_rutas (cdr carpetas) path lista)))))
 
 ;descripción: Función que que compara y guarda si es que el largo de una ruta es menor o igual al ingresado.
 ;recursión: sí, recursión natural, porque recorre las rutas una a una y elimina las que no cumplan la condición.
@@ -262,15 +262,15 @@ seguridad como una lista de char.|#
                            (comparar (cdr carpetas) path (append lista (list (caaar carpetas))))
                            (comparar (cdr carpetas) path lista)))))
 
-;descripción: Función que 
-;recursión: sí, recursión natural, porque 
+;descripción: Función que que determina si una carpeta tiene una ruta de igual fuente que la ingresada.
+;recursión: sí, recursión natural, porque recorre la ruta de una carpeta y compara una a una. 
 ;dom: path_carpeta x path
 ;rec: booleano
-(define igual_fuente2 (lambda (path_carpeta path)
+(define igual_fuente_eliminar (lambda (path_carpeta path)
                        (if (null? path)
                            #t
                            (if (equal? (caaar path_carpeta) (car path))
-                               (igual_fuente2 (avanzar_directorio_carpeta path_carpeta) (cdr path))
+                               (igual_fuente_eliminar (avanzar_directorio_carpeta path_carpeta) (cdr path))
                                #f))))
 
 ;descripción: Función que define si una carpeta (ruta) ya existe.

@@ -1,11 +1,12 @@
 #lang racket
-(require "main.rkt")
-(require "system.rkt")
-(require "drive.rkt")
-(require "user.rkt")
-(require "folder.rkt")
-(require "file.rkt")
+(require "main_20832740_TorresUndurraga.rkt")
+(require "system_20832740_TorresUndurraga.rkt")
+(require "drive_20832740_TorresUndurraga.rkt")
+(require "user_20832740_TorresUndurraga.rkt")
+(require "folder_20832740_TorresUndurraga.rkt")
+(require "file_20832740_TorresUndurraga.rkt")
 
+;SCRIPT DE PRUEBAS
 ;creando un sistema
 (define S0 (system "newSystem"))
 (define S0.1 (system "newSystem_2"))
