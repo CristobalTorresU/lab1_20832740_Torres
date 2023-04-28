@@ -32,6 +32,8 @@ char.|#
 
 (define nombre_archivo car) ;selecciona el nombre de un archivo
 
+(define atributos_seguridad_archivo cadddr)
+
 (define archivos cdr) ;selecciona los archivos de una carpeta
 
 ;descripción: Función que crea una lista con los nombres de los archivos que se encuentran en la carpeta actual.
@@ -95,3 +97,34 @@ char.|#
                          (if (null? (filter (lambda (archivos) (equal? archivos file_name)) archivos))
                              #t
                              #f)))
+
+;descripción: Función que recolecta nombres de los archivos que no estén ocultos.
+;recursión: sí, recursión natural, porque revisa uno a uno los nombres para que no se repitan y los parámetros de seguridad para saber si es un archivo oculto.
+;dom: archivos x lista
+;rec: lista
+(define nombres_archivos_no_ocultos (lambda (archivos lista)
+                                      (if (null? archivos)
+                                          lista
+                                          (if (and (equal? #f (member #\h (atributos_seguridad_archivo (car archivos)))) (equal? #f (member (nombre_archivo (car archivos)) lista)))
+                                              (nombres_archivos_no_ocultos (cdr archivos) (append lista (list (nombre_archivo (car archivos)))))
+                                              (nombres_archivos_no_ocultos (cdr archivos) lista)))))
+
+;descripción: Función que recolecta el nombre de los archivos.
+;recursión: sí, recursión natural, porque compara uno a uno los nombres de los archivos para verificar que no se repitan.
+;dom: archivos x lista
+;rec: lista
+(define nombres_archivos (lambda (archivos lista)
+                                      (if (null? archivos)
+                                          lista
+                                          (if (equal? #f (member (nombre_archivo (car archivos)) lista))
+                                              (nombres_archivos (cdr archivos) (append lista (list (nombre_archivo (car archivos)))))
+                                              (nombres_archivos (cdr archivos) lista)))))
+
+;descripción: Función que ordena alfabeticamente el string de la función dir de forma ascendete o descendente.
+;recursión: no 
+;dom: archivos x lista
+;rec: lista
+(define ordenar_alfabeticamente (lambda (opcion lista)
+                                  (if (equal? #\- (string-ref opcion 3))
+                                      (sort lista string>?)
+                                      (sort lista string<?))))

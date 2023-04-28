@@ -15,10 +15,12 @@ seguridad como una lista de char.|#
 
 ;descripción: Función que permite crear un folder (carpeta).
 ;recursión: no
-;dom: dirección (nombre) x creador (String) . seguridad (Lista de char)
+;dom: dirección (nombre) x creador (String) x seguridad (Lista de char)
 ;rec: folder
 (define folder (lambda (direccion creador . seguridad)
-                  (list (list direccion creador (fecha) (fecha) seguridad))))
+                  (list (list direccion creador (fecha) (fecha) (if (not (null? seguridad))
+                                                                    seguridad
+                                                                    (list null))))))
 
 ;SELECTORES
 
@@ -37,6 +39,8 @@ seguridad como una lista de char.|#
 (define resto_carpetas cdr) ;selecciona las carpetas en las que no se realizan las operaciones
 
 (define nombre_carpeta cadaar) ;selecciona el nombre de la carpeta
+
+(define atributos_seguridad_carpeta (lambda (carpeta) (car (list-ref (car carpeta) 4))))
 
 ;MODIFICADORES
                                        
@@ -291,7 +295,7 @@ seguridad como una lista de char.|#
                              #f
                              #t)))
 
-;descripción: Función que determina si una carpeta tiene subcarpetas.
+;descripción: Función que determina si una carpeta tiene carpetas dentro.
 ;recursión: no
 ;dom: carpetas x path
 ;rec: booleano
@@ -310,3 +314,60 @@ seguridad como una lista de char.|#
                            (if (equal? (car path_carpeta) (car path))
                                (igual_fuente (cdr path_carpeta) (cdr path))
                                #f))))
+
+;descripción: Función que extrae los nombres de las carpetas y los deja en una lista.
+;recursión: sí, recursión natural, porque comprueba si el nombre existe para cada carpeta.
+;dom: carpetas x path
+;rec: carpetas (solo los nombres)
+(define nombres_carpetas_no_ocultas (lambda (carpetas lista)
+                           (if (null? carpetas)
+                               lista
+                               (if (and (equal? #f (member #\h (atributos_seguridad_carpeta (car carpetas)))) (equal? #f (member (nombre_carpeta (car carpetas)) lista)))
+                                   (nombres_carpetas_no_ocultas (cdr carpetas) (append lista (list (nombre_carpeta (car carpetas)))))
+                                   (nombres_carpetas_no_ocultas (cdr carpetas) lista)))))
+
+;descripción: Función que extrae los nombres de las carpetas y los deja en una lista.
+;recursión: sí, recursión natural, porque comprueba si el nombre existe para cada carpeta.
+;dom: carpetas x path
+;rec: carpetas (solo los nombres)
+(define nombres_carpetas (lambda (carpetas lista)
+                           (if (null? carpetas)
+                               lista
+                               (if (equal? #f (member (nombre_carpeta (car carpetas)) lista))
+                                   (nombres_carpetas (cdr carpetas) (append lista (list (nombre_carpeta (car carpetas)))))
+                                   (nombres_carpetas (cdr carpetas) lista)))))
+
+;descripción: Función que extrae los nombres de las carpetas y los deja en una lista.
+;recursión: sí, recursión natural, porque comprueba si el nombre existe para cada carpeta.
+;dom: carpetas x path
+;rec: carpetas (solo los nombres)
+(define nombres_carpetas_y_subcarpetas_no_ocultas (lambda (carpetas lista)
+                           (if (null? carpetas)
+                               lista
+                               (if (equal? #f (member #\h (atributos_seguridad_carpeta (car carpetas))))
+                                   (nombres_carpetas_y_subcarpetas_no_ocultas (cdr carpetas) (append lista (list (if (= 1 (length (cdaar (car carpetas))))
+                                                                                                                     (nombre_carpeta (car carpetas))
+                                                                                                                     (formar_ruta (cddaar (car carpetas)) "" (cadaar (car carpetas)))))))
+                                   (nombres_carpetas_y_subcarpetas_no_ocultas (cdr carpetas) lista)))))
+
+;descripción: Función que extrae los nombres de las carpetas y los deja en una lista.
+;recursión: sí, recursión natural, porque comprueba si el nombre existe para cada carpeta.
+;dom: carpetas x path
+;rec: carpetas (solo los nombres)
+(define nombres_carpetas_y_subcarpetas (lambda (carpetas lista)
+                           (if (null? carpetas)
+                               lista
+                                   (nombres_carpetas_y_subcarpetas (cdr carpetas) (append lista (list (if (= 1 (length (cdaar (car carpetas))))
+                                                                                                                     (nombre_carpeta (car carpetas))
+                                                                                                                     (formar_ruta (cddaar (car carpetas)) "" (cadaar (car carpetas))))))))))
+
+;descripción: Función que forma el string que contiene el contenido de un directorio.
+;recursión: sí, recursión natural, porque agrega cada elemento de las listas al string final.
+;dom: string (String) x nombres_carpetas (lista de strings) x archivos (lista de strings)
+;rec: string
+(define formar_string (lambda (string nombres_carpetas nombres_archivos)
+                        (if (null? nombres_carpetas)
+                            (if (null? nombres_archivos)
+                                string
+                                (formar_string (string-append string "\n" (car nombres_archivos)) nombres_carpetas (cdr nombres_archivos)))
+                            (formar_string (string-append string "\n" (car nombres_carpetas)) (cdr nombres_carpetas) nombres_archivos))))

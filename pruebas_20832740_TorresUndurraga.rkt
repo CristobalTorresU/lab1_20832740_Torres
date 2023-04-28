@@ -68,9 +68,9 @@ guarda los drives en minúscula, esto es posible ya que los drives no son case-s
 #|se trata de ingresar una carpeta con un nombre con mayúsculas, lo cual no funciona ya que
 el nombre de esa carpeta en esa ruta ya existe en minúsculas. Por lo que se cambia el drive
 y se crea la carpeta.|#
-(define S31 ((run S30 md) "FOLDER3"))
+(define S31 ((run S30 md) "FOLDER3" #\h))
 (define S32 ((run S31 switch-drive) #\F))
-(define S33 ((run S32 md) "FOLDER3"))
+(define S33 ((run S32 md) "FOLDER3" #\h))
 
 ;se cambia la ruta actual al root del drive C
 (define S34 ((run S33 cd) "C:/"))
@@ -83,7 +83,7 @@ y se crea la carpeta.|#
 (define S37 ((run S36 md) "folder21"))
 
 ;se crea la carpeta folder22 como subcarpeta de folder2
-(define S38 ((run S37 md) "folder22"))
+(define S38 ((run S37 md) "folder22" #\h))
 
 ;ingresa a subcarpeta e intenta ingresar a subcarpeta inexistente S21
 (define S39 ((run S38 cd) "folder21"))
@@ -212,3 +212,10 @@ una subcarpeta|#
 
 ;cambia el nombre y tipo de archivo
 (define S101 ((run S100 ren) "foo3.docx" "foo3.txt"))
+
+;
+(define S102 ((run S101 cd) "c:/"))
+
+;listando información
+(display ((run S30 dir)))
+(display ((run S102 dir) "/s" "/a"))

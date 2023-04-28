@@ -88,7 +88,7 @@
 ;dom: system x name (String)
 ;rec: system
 (define md (lambda (system)
-             (lambda (name)
+             (lambda (name . seguridad)
                    (if (equal? #t (comparar_rutas (rutas (carpetas_unidad_actual system) null) (formar_ruta (cdr (ruta_actual system)) (string-downcase name) (car (ruta_actual system)))))
                        (armar_sistema (datos_sistema system)
                                  (append (list (append (list (letra_unidad (unidad_actual system))
@@ -96,7 +96,7 @@
                                                      (size_unidad (unidad_actual system)))
                                                      (append (list (actualizar_fecha_modificacion (car (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))))
                                                              (cdr (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))))
-                                             (list (folder (append (ruta_actual system) (list (string-downcase name))) (usuario_actual system)))))
+                                             (list (folder (append (ruta_actual system) (list (string-downcase name))) (usuario_actual system) seguridad))))
                                      (cdr (unidades system)))
                              (usuarios system)
                              (papelera system))
@@ -280,3 +280,19 @@
                                                (resto_unidades system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))
                                   (usuarios system)
                                   (papelera system))))))))
+
+;descripción: Función para listar el contenido de un directorio específico o de toda una ruta.
+;recursión: sí, 
+;dom: system x params (String list)
+;rec: string (formateado para poder visualizarlo con display)
+(define dir (lambda (system)
+                  (lambda args
+                    (if (null? args)
+                        (formar_string "" (nombres_carpetas_no_ocultas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) null) (nombres_archivos_no_ocultos (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null))
+                        (if (and (not (equal? #f (member "/a" args))) (not (equal? #f (member "/s" args))))
+                            (formar_string "" (nombres_carpetas_y_subcarpetas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) null) (nombres_archivos (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null))
+                            (if (not (equal? #f (member "/a" args)))
+                                (formar_string "" (nombres_carpetas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) null) (nombres_archivos (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null))
+                                (if (not (equal? #f (member "/s" args)))
+                                    (formar_string "" (nombres_carpetas_y_subcarpetas_no_ocultas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) null) (nombres_archivos_no_ocultos (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null))
+                                    1)))))))
