@@ -213,7 +213,7 @@ una subcarpeta|#
 ;cambia el nombre y tipo de archivo
 (define S101 ((run S100 ren) "foo3.docx" "foo3.txt"))
 
-;
+;cambiando de ruta
 (define S102 ((run S101 cd) "c:/"))
 
 ;listando información

@@ -360,14 +360,3 @@ seguridad como una lista de char.|#
                                    (nombres_carpetas_y_subcarpetas (cdr carpetas) (append lista (list (if (= 1 (length (cdaar (car carpetas))))
                                                                                                                      (nombre_carpeta (car carpetas))
                                                                                                                      (formar_ruta (cddaar (car carpetas)) "" (cadaar (car carpetas))))))))))
-
-;descripción: Función que forma el string que contiene el contenido de un directorio.
-;recursión: sí, recursión natural, porque agrega cada elemento de las listas al string final.
-;dom: string (String) x nombres_carpetas (lista de strings) x archivos (lista de strings)
-;rec: string
-(define formar_string (lambda (string nombres_carpetas nombres_archivos)
-                        (if (null? nombres_carpetas)
-                            (if (null? nombres_archivos)
-                                string
-                                (formar_string (string-append string "\n" (car nombres_archivos)) nombres_carpetas (cdr nombres_archivos)))
-                            (formar_string (string-append string "\n" (car nombres_carpetas)) (cdr nombres_carpetas) nombres_archivos))))

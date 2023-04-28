@@ -14,6 +14,8 @@ y el cuarto como la papelera del sistema como listas.|#
 
 (define datos_sistema (lambda (system) (list-ref system 0))) ;selecciona los datos del sistema.
 
+(define letra_unidad_actual (lambda (system) (list-ref (car system) 2))) ;selecciona la letra de la unidad en la que se realizan las operaciones.
+
 (define usuario_actual (lambda (system) (list-ref (car system) 3))) ;selecciona el usuario que esta realizando las operaciones.
 
 (define ruta_actual (lambda (system) (list-ref (car system) 4))) ;selecciona la ruta en la que se realizan las operaciones.
@@ -32,3 +34,34 @@ y el cuarto como la papelera del sistema como listas.|#
 ;rec: system
 (define armar_sistema (lambda (datos_sistema unidades usuarios papelera)
                         (list datos_sistema unidades usuarios papelera)))
+
+;OTRAS OPERACIONES
+
+;descripción: Función que forma el string que contiene el contenido de un directorio.
+;recursión: sí, recursión natural, porque agrega cada elemento de las listas al string final.
+;dom: string (String) x nombres_carpetas (lista de strings) x archivos (lista de strings)
+;rec: string
+(define formar_string (lambda (string nombres_carpetas nombres_archivos)
+                        (if (null? nombres_carpetas)
+                            (if (null? nombres_archivos)
+                                string
+                                (formar_string (string-append string "\n" (car nombres_archivos)) nombres_carpetas (cdr nombres_archivos)))
+                            (formar_string (string-append string "\n" (car nombres_carpetas)) (cdr nombres_carpetas) nombres_archivos))))
+
+;descripción: Función que busca y entrega uno de los strings buscados.
+;recursión: sí, recursión natural, porque 
+;dom: args
+;rec: string
+(define encontrar_string_d (lambda (args)
+                             (if (or (equal? "/o D" (car args)) (equal? "/o -D" (car args)))
+                             (car args)
+                             (encontrar_string_d (cdr args)))))
+
+;descripción: Función que busca y entrega uno de los strings buscados.
+;recursión: sí, recursión natural, porque 
+;dom: args
+;rec: string
+(define encontrar_string_n (lambda (args)
+                             (if (or (equal? "/o N" (car args)) (equal? "/o -N" (car args)))
+                             (car args)
+                             (encontrar_string_n (cdr args)))))
