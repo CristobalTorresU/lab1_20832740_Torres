@@ -128,3 +128,30 @@ char.|#
                                   (if (equal? #\- (string-ref opcion 3))
                                       (sort lista string>?)
                                       (sort lista string<?))))
+
+;descripción: Función que forma el string que contiene el contenido de un directorio y sus subdirectorios.
+;recursión: sí, recursión natural, porque agrega cada elemento de las listas al string final.
+;dom: string (String) x nombres_carpetas (lista de strings) x archivos (lista de strings)
+;rec: string
+(define formar_string_con_subdirectorios (lambda (string subcarpetas names_files)
+                        (if (null? names_files)
+                            (if (null? subcarpetas)
+                                string
+                                (formar_string_con_subdirectorios (string-append string "\n\n" (if (= 1 (length (cdaar (car subcarpetas)))) (nombre_carpeta (car subcarpetas)) (formar_ruta (cddaar (car subcarpetas)) "" (cadaar (car subcarpetas))))) (cdr subcarpetas) (nombres_archivos (archivos (car subcarpetas)) null)))
+                            (formar_string_con_subdirectorios (string-append string "\n" (car names_files)) subcarpetas (cdr names_files)))))
+
+;descripción: Función que forma el string que contiene el contenido de un directorio y sus subdirectorios que no estén ocultos.
+;recursión: sí, recursión natural, porque agrega cada elemento de las listas al string final.
+;dom: string (String) x nombres_carpetas (lista de strings) x archivos (lista de strings)
+;rec: string
+(define formar_string_con_subdirectorios_no_ocultos (lambda (string subcarpetas names_files)
+                        (if (null? names_files)
+                            (if (null? subcarpetas)
+                                string
+                                (if (equal? #f (member #\h (atributos_seguridad_carpeta (car subcarpetas))))
+                                    (formar_string_con_subdirectorios_no_ocultos (string-append string "\n\n" (if (= 1 (length (cdaar (car subcarpetas))))
+                                                                                                                  (nombre_carpeta (car subcarpetas))
+                                                                                                                  (formar_ruta (cddaar (car subcarpetas)) "" (cadaar (car subcarpetas)))))
+                                                                             (cdr subcarpetas) (nombres_archivos_no_ocultos (archivos (car subcarpetas)) null))
+                                    (formar_string_con_subdirectorios_no_ocultos string (cdr subcarpetas) names_files)))
+                            (formar_string_con_subdirectorios_no_ocultos (string-append string "\n" (car names_files)) subcarpetas (cdr names_files)))))

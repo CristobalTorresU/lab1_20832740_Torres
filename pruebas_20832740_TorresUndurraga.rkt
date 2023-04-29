@@ -214,8 +214,18 @@ una subcarpeta|#
 (define S101 ((run S100 ren) "foo3.docx" "foo3.txt"))
 
 ;cambiando de ruta
-(define S102 ((run S101 cd) "c:/"))
+(define S102 ((run S101 cd) "c:/newfolder2/"))
+
+;
+(define S103 ((run S102 add-file) (file "test.txt" "txt" "Script")))
+(define S104 ((run S103 cd) "folder21"))
+(define S105 ((run S104 add-file) (file "contraseñas.txt" "txt" "1234")))
+(define S106 ((run S105 cd) "c:/newfolder2/folder22/"))
+(define S107 ((run S106 add-file) (file "resultados.csv" "csv" "14.2 13.6 13.9")))
+(define S108 ((run S107 cd) "/"))
 
 ;listando información
-(display ((run S30 dir)))
-(display ((run S102 dir) "/s" "/a"))
+;(display ((run S30 dir)))
+;(display ((run S108 dir)))
+;(display ((run S108 dir) "/s")) ;muestra carpetas y subcarpetas de la unidad C
+(display ((run S108 dir) "/s" "/a")) ;muestra todo el contenido de carpetas y subcarpetas de la unidad C incluyendo archivo oculto goo4.docx

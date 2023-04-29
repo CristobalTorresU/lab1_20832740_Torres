@@ -315,7 +315,7 @@ seguridad como una lista de char.|#
                                (igual_fuente (cdr path_carpeta) (cdr path))
                                #f))))
 
-;descripción: Función que extrae los nombres de las carpetas y los deja en una lista.
+;descripción: Función que extrae los nombres de las carpetas que no estén ocultas y los deja en una lista.
 ;recursión: sí, recursión natural, porque comprueba si el nombre existe para cada carpeta.
 ;dom: carpetas x path
 ;rec: carpetas (solo los nombres)
@@ -337,7 +337,7 @@ seguridad como una lista de char.|#
                                    (nombres_carpetas (cdr carpetas) (append lista (list (nombre_carpeta (car carpetas)))))
                                    (nombres_carpetas (cdr carpetas) lista)))))
 
-;descripción: Función que extrae los nombres de las carpetas y los deja en una lista.
+;descripción: Función que extrae los nombres de las carpetas y subcarpetas que no estén ocultas y los deja en una lista.
 ;recursión: sí, recursión natural, porque comprueba si el nombre existe para cada carpeta.
 ;dom: carpetas x path
 ;rec: carpetas (solo los nombres)
@@ -350,7 +350,7 @@ seguridad como una lista de char.|#
                                                                                                                      (formar_ruta (cddaar (car carpetas)) "" (cadaar (car carpetas)))))))
                                    (nombres_carpetas_y_subcarpetas_no_ocultas (cdr carpetas) lista)))))
 
-;descripción: Función que extrae los nombres de las carpetas y los deja en una lista.
+;descripción: Función que extrae los nombres de las carpetas y subcarpetas, para después incluirlos en una lista.
 ;recursión: sí, recursión natural, porque comprueba si el nombre existe para cada carpeta.
 ;dom: carpetas x path
 ;rec: carpetas (solo los nombres)
