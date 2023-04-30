@@ -216,16 +216,43 @@ una subcarpeta|#
 ;cambiando de ruta
 (define S102 ((run S101 cd) "c:/newfolder2/"))
 
-;
+;creando archivos para probar la función dir
 (define S103 ((run S102 add-file) (file "test.txt" "txt" "Script")))
 (define S104 ((run S103 cd) "folder21"))
-(define S105 ((run S104 add-file) (file "contraseñas.txt" "txt" "1234")))
+(define S105 ((run S104 add-file) (file "contraseñas.txt" "txt" "1234" #\r #\h)))
 (define S106 ((run S105 cd) "c:/newfolder2/folder22/"))
 (define S107 ((run S106 add-file) (file "resultados.csv" "csv" "14.2 13.6 13.9")))
-(define S108 ((run S107 cd) "/"))
+
+;creando una carpeta que no es oculta, pero la carpeta en la que se encuentra lo es
+(define S108 ((run S107 md) "folder_oculta"))
+(define S109 ((run S108 cd) "/"))
 
 ;listando información
-;(display ((run S30 dir)))
-;(display ((run S108 dir)))
-;(display ((run S108 dir) "/s")) ;muestra carpetas y subcarpetas de la unidad C
-(display ((run S108 dir) "/s" "/a")) ;muestra todo el contenido de carpetas y subcarpetas de la unidad C incluyendo archivo oculto goo4.docx
+(display ((run S30 dir)))
+(display ((run S109 dir)))
+(display ((run S109 dir) "/s" "/a")) ;muestra carpetas y subcarpetas de la unidad C
+(display ((run S109 dir) "/s")) ;muestra todo el contenido de carpetas y subcarpetas de la unidad C incluyendo archivo oculto goo4.docx y la carpeta oculta folder22.
+
+;creando una carpeta para mostrar el orden alfabético
+(define S110 ((run S109 cd) "newfolder1"))
+(define S111 ((run S110 md) "carpeta_normal"))
+(display ((run S111 dir)))
+(display ((run S111 dir) "/o N"))
+(display ((run S111 dir) "/o -N"))
+
+;formateando drive D:
+(define S112 ((run S111 format) #\D "Music"))
+
+;cambiando de drive a un drive vacío y mostrando que no tiene nada
+(define S113 ((run S112 switch-drive) #\d))
+(display ((run S113 dir)))
+
+;cambiando de directorio y formateando dentro de la misma
+(define S114 ((run S113 cd) "e:/folder2/folder21/"))
+(define S115 ((run S114 format) #\E "Clases Online")) ;cuando se formatea dentro del mismo drive, se cambia al root del drive y el usuario que la creo.
+
+;cuando se formatea un drive, se puede dejar el mismo nombre que ya tenía
+(define S116 ((run S115 format) #\A "UEFI"))
+
+;intenta formatear un drive que no existe
+(define S117 ((run S116 format) #\H "home"))

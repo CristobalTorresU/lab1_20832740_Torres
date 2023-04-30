@@ -49,19 +49,19 @@ y el cuarto como la papelera del sistema como listas.|#
                             (formar_string (string-append string "\n" (car nombres_carpetas)) (cdr nombres_carpetas) nombres_archivos))))
 
 ;descripción: Función que busca y entrega uno de los strings buscados.
-;recursión: sí, recursión natural, porque 
-;dom: args
-;rec: string
-(define encontrar_string_d (lambda (args)
-                             (if (or (equal? "/o D" (car args)) (equal? "/o -D" (car args)))
-                             (car args)
-                             (encontrar_string_d (cdr args)))))
-
-;descripción: Función que busca y entrega uno de los strings buscados.
-;recursión: sí, recursión natural, porque 
+;recursión: sí, recursión natural, porque busca en cada elemento de la lista hasta encontrar uno de los strings.
 ;dom: args
 ;rec: string
 (define encontrar_string_n (lambda (args)
                              (if (or (equal? "/o N" (car args)) (equal? "/o -N" (car args)))
                              (car args)
                              (encontrar_string_n (cdr args)))))
+
+;descripción: Función que ordena alfabeticamente el string de la función dir de forma ascendete o descendente.
+;recursión: no 
+;dom: archivos x lista
+;rec: lista
+(define ordenar_alfabeticamente (lambda (opcion lista)
+                                  (if (equal? #\- (string-ref opcion 3))
+                                      (sort lista string>?)
+                                      (sort lista string<?))))

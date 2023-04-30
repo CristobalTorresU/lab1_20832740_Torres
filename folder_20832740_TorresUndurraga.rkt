@@ -360,3 +360,30 @@ seguridad como una lista de char.|#
                                    (nombres_carpetas_y_subcarpetas (cdr carpetas) (append lista (list (if (= 1 (length (cdaar (car carpetas))))
                                                                                                                      (nombre_carpeta (car carpetas))
                                                                                                                      (formar_ruta (cddaar (car carpetas)) "" (cadaar (car carpetas))))))))))
+
+;descripción: Función que filtra las carpetas ocultas de una lista de carpetas.
+;recursión: no
+;dom: carpetas (lista de folders)
+;rec: carpetas
+(define carpetas_ocultas (lambda (carpetas)
+                           (filter (lambda (x) (es_oculta? x)) carpetas)))
+
+;descripción: Función que determina si una carpeta está oculta o no.
+;recursión: no
+;dom: carpeta (folder)
+;rec: booleano
+(define es_oculta? (lambda (carpeta)
+                     (if (equal? #f (member #\h (atributos_seguridad_carpeta carpeta)))
+                         #f
+                         #t)))
+
+;descripción: Función que elimina los subdirectorios de una carpeta de una lista de carpetas.
+;recursión: sí, recursión natural, porque avanza subdirectorios uno a uno juntando las carpetas dentro de esta que se deben eliminar.
+;dom: carpetas (lista de folders) x subdirectorios (lista de folders) x por_eliminar (lista de folders)
+;rec: carpetas
+(define eliminar_subcarpetas (lambda (carpetas subdirectorios por_eliminar)
+                                 (if (null? por_eliminar)
+                                     (if (null? subdirectorios)
+                                         carpetas
+                                         (eliminar_subcarpetas carpetas (cdr subdirectorios) (filtrar_por_fuente carpetas (ruta_carpeta (car subdirectorios)))))
+                                     (eliminar_subcarpetas (remove (car por_eliminar) carpetas) subdirectorios (cdr por_eliminar)))))

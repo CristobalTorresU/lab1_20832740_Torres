@@ -97,7 +97,7 @@ del porque en la propia función.|#
                                  (append (list (append (list (letra_unidad (unidad_actual system))
                                                      (nombre_unidad (unidad_actual system))
                                                      (size_unidad (unidad_actual system)))
-                                                     (append (list (actualizar_fecha_modificacion (car (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))))
+                                                     (append (list (append (actualizar_fecha_modificacion (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) (archivos (carpeta_actual (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))))))
                                                              (cdr (primero_carpeta_actual (carpetas (unidad_actual system)) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system))))))
                                              (list (folder (append (ruta_actual system) (list (string-downcase name))) (usuario_actual system) seguridad))))
                                      (cdr (unidades system)))
@@ -301,26 +301,26 @@ propias funciones.|#
 ;rec: string (formateado para poder visualizarlo con display)
 (define dir (lambda (system)
                   (lambda args
-                    (if (null? args)
-                        (formar_string "" (nombres_carpetas_no_ocultas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) null) (nombres_archivos_no_ocultos (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null))
-                        (if (and (not (equal? #f (member "/a" args))) (not (equal? #f (member "/s" args))))
-                                (formar_string_con_subdirectorios
+                    (if (null? args);null
+                        (string-append (formar_string "" (nombres_carpetas_no_ocultas (eliminar_subcarpetas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) (carpetas_ocultas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system))) null) null) (nombres_archivos_no_ocultos (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null)) "\n\n")
+                        (if (and (not (equal? #f (member "/a" args))) (not (equal? #f (member "/s" args))));/s /a
+                                (string-append (formar_string_con_subdirectorios
                                  (formar_string "" (nombres_carpetas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) null)
                                    (nombres_archivos (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system)
                                    (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null))
-                                 (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) null)
-                            (if (not (equal? #f (member "/a" args)))
-                                (formar_string "" (nombres_carpetas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) null) (nombres_archivos (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null))
-                                (if (not (equal? #f (member "/s" args)))
-                                    (formar_string_con_subdirectorios_no_ocultos
-                                     (formar_string "" (nombres_carpetas_no_ocultas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) null)
+                                 (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) (subcarpetas (carpetas_unidad_actual system) (ruta_actual system))) "\n\n")
+                            (if (not (equal? #f (member "/a" args)));/a
+                                (string-append (formar_string "" (nombres_carpetas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) null) (nombres_archivos (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null)) "\n")
+                                (if (not (equal? #f (member "/s" args)));/s
+                                    (string-append (formar_string_con_subdirectorios_no_ocultos
+                                     (formar_string "" (nombres_carpetas_no_ocultas (eliminar_subcarpetas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) (carpetas_ocultas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system))) null) null)
                                      (nombres_archivos_no_ocultos (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system)
                                      (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null))
-                                     (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) null);/s
-                                   (if (or (not (equal? #f (member "/o N" args))) (not (equal? #f (member "/o -N" args))))
-                                        (formar_string "" (ordenar_alfabeticamente (encontrar_string_n args) (append (nombres_carpetas_no_ocultas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) null) (nombres_archivos_no_ocultos (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null))) null)
-                                        (if (and (= 1 (length args)) (equal? "/?" (car args)))
-                                                "Se puede utilizar:\n
+                                     (eliminar_subcarpetas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) (carpetas_ocultas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system))) null) (eliminar_subcarpetas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) (carpetas_ocultas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system))) null)) "\n\n")
+                                   (if (or (not (equal? #f (member "/o N" args))) (not (equal? #f (member "/o -N" args))));/o [-]N
+                                        (string-append (formar_string "" (ordenar_alfabeticamente (encontrar_string_n args) (append (nombres_carpetas_no_ocultas (subcarpetas (carpetas_unidad_actual system) (ruta_actual system)) null) (nombres_archivos_no_ocultos (archivos (carpeta_actual (primero_carpeta_actual (carpetas_unidad_actual system) (formar_ruta (cdr (ruta_actual system)) "" (car (ruta_actual system)))))) null))) null) "\n")
+                                        (if (and (= 1 (length args)) (equal? "/?" (car args)));/?
+                                                "/?\nSe puede utilizar:\n
 /s          lista el contenido del directorio actual y todos los subdirectorios\n
 /a          lista el contenido del directorio actual incluyendo contenido oculto\n
 /o [-]N     lista el contenido del directorio actual en orden alfabético ascendente o descendente '-'\n
@@ -335,12 +335,12 @@ propias funciones.|#
                  (lambda (letter name)
                    (if (equal? #f (buscar_drive (char-downcase letter) (unidades system)))
                        system
-                       (if (equal? letter (letra_unidad_actual system))
+                       (if (equal? (char-downcase letter) (letra_unidad_actual system))
                            (armar_sistema (modificar_path (datos_sistema system) (root system))
                                       (append (list (drive (usuario_actual system) (letra_unidad_actual system) name (size_unidad (unidad_actual system)))) (resto_unidades system))
                                       (usuarios system)
                                       (papelera system))
                            (armar_sistema (datos_sistema system)
-                                      (ordenar_drives (append (list (drive (usuario_actual system) (letra_unidad (car (ordenar_drives (unidades system) letter))) name (size_unidad (car (ordenar_drives (unidades system) letter))))) (cdr (ordenar_drives (unidades system) letter))) (letra_unidad_actual system))
+                                      (ordenar_drives (append (list (drive (usuario_actual system) (letra_unidad (car (ordenar_drives (unidades system) (char-downcase letter)))) name (size_unidad (car (ordenar_drives (unidades system) (char-downcase letter)))))) (cdr (ordenar_drives (unidades system) (char-downcase letter)))) (letra_unidad_actual system))
                                       (usuarios system)
                                       (papelera system)))))))
