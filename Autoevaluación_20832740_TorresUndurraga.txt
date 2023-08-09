@@ -1,0 +1,90 @@
+Requerimientos Funcionales:
+1. TDAs
+Autoevaluación: 1
+
+2. TDA system - constructor
+Autoevaluación: 1
+
+3. TDA system - run
+Autoevaluación: 1
+
+4. TDA system - add-drive
+Autoevaluación: 1
+
+5. TDA system - register
+Autoevaluación: 1
+
+6. TDA system - login
+Autoevaluación: 1
+
+7. TDA system - logout
+Autoevaluación: 1
+
+8. TDA system - switch-drive
+Autoevaluación: 1
+
+9. TDA system - md (make directory)
+Autoevaluación: 1
+
+10. TDA system - cd (change directory)
+Autoevaluación: 1
+
+11. TDA system - add-file
+Autoevaluación: 1
+
+12. TDA system - del
+Autoevaluación: 1
+Se implementó una versión simple de este comando.
+
+13. TDA system - rd (remove directory)
+Autoevaluación: 1
+
+14. TDA system - copy
+Autoevaluación: 1
+
+15. TDA system - move
+Autoevaluación: 1
+
+16. TDA system - ren (rename)
+Autoevaluación: 1
+
+17. TDA system - dir (directory)
+Autoevaluación: 1
+Se implementó las siguientes versiones: simple, /a, /s, /a /s, /o [-]N y /?
+
+18. TDA system - format
+Autoevaluación: 1
+
+Requerimientos No Funcionales:
+1. Autoevaluación:
+Autoevaluación: 1
+
+2. Lenguaje
+Autoevaluación: 1
+
+3. Standard
+Autoevaluación: 1
+
+4. Versión
+Autoevaluación: 1
+
+5. No variables
+Autoevaluación: 1
+
+6. Documentación
+Autoevaluación: 1
+
+7. Dom->Rec
+Autoevaluación: 1
+
+8. Organización
+Autoevaluación: 1
+
+9. Historial
+Autoevaluación: 1
+
+10. Script de pruebas
+Autoevaluación: 1
+
+11. Prerrequisitos
+Autoevaluación: 1
